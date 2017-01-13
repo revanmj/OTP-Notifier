@@ -46,14 +46,20 @@ public class SMSListener extends BroadcastReceiver {
                         android.content.ClipData clip = android.content.ClipData.newPlainText("someLabel",code);
                         clipboard.setPrimaryClip(clip);
 
-                        // Display the SMS message in a Toast
+                        // creating expandable notification
+                        NotificationCompat.BigTextStyle notiStyle = new NotificationCompat.BigTextStyle();
+                        notiStyle.setBigContentTitle("New OTP Code!");
+                        notiStyle.setSummaryText(phoneNumber + ": " + code);
+
+                        // creating normal notification
                         NotificationCompat.Builder mBuilder =
                                 new NotificationCompat.Builder(context)
                                         .setSmallIcon(android.R.drawable.stat_notify_chat)
                                         .setContentTitle("New OTP Code!")
-                                        .setContentText(phoneNumber + ": " + code);
+                                        .setContentText(phoneNumber + ": " + code)
+                                        .setStyle(notiStyle);
 
-                        // Builds the notification and issues it.
+                        // showing notification
                         NotificationManager mNotifyMgr = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
                         mNotifyMgr.notify(001, mBuilder.build());
                     }
