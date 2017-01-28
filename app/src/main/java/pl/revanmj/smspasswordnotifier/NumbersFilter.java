@@ -11,6 +11,8 @@ public class NumbersFilter {
 
     static final Set<String> NUMBERS_SET = new HashSet<String>() {{
         add("PayPal");
+        add("Info");
+        add("AUTHMSG");
     }};
 
     public static boolean shouldExtractPassword(String address) {

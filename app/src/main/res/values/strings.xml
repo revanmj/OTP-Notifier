@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">SMS Password Notifier</string>
+    <string name="noti_title">New code from SMS!</string>
 </resources>

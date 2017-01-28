@@ -48,14 +48,14 @@ public class SMSListener extends BroadcastReceiver {
 
                         // creating expandable notification
                         NotificationCompat.BigTextStyle notiStyle = new NotificationCompat.BigTextStyle();
-                        notiStyle.setBigContentTitle("New OTP Code!");
+                        notiStyle.setBigContentTitle(context.getString(R.string.noti_title));
                         notiStyle.setSummaryText(phoneNumber + ": " + code);
 
                         // creating normal notification
                         NotificationCompat.Builder mBuilder =
                                 new NotificationCompat.Builder(context)
-                                        .setSmallIcon(android.R.drawable.stat_notify_chat)
-                                        .setContentTitle("New OTP Code!")
+                                        .setSmallIcon(R.mipmap.ic_noti_key)
+                                        .setContentTitle(context.getString(R.string.noti_title))
                                         .setContentText(phoneNumber + ": " + code)
                                         .setStyle(notiStyle);
 
