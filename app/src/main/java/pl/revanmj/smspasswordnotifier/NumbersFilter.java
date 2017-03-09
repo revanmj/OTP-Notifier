@@ -104,7 +104,7 @@ public class NumbersFilter {
             StringBuilder sb = new StringBuilder();
             char[] charArrayOfOriginal = original.toCharArray();
             for (int ch = 0; ch < charArrayOfOriginal.length; ch++) {
-                if (ch % distance == 0)
+                if (ch % distance == 0 && ch > 0)
                     sb.append(' ').append(charArrayOfOriginal[ch]);
                 else
                     sb.append(charArrayOfOriginal[ch]);
