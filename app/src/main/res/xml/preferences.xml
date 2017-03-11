@@ -10,11 +10,21 @@
         android:summary="@string/summary_process_all_messages"
         android:key="use_whitelist"
         android:defaultValue="true" />
+    <SwitchPreference
+        android:title="Heads up notifications"
+        android:summary="@string/summary_process_all_messages"
+        android:key="headsup_notifications"
+        android:defaultValue="false" />
     <PreferenceScreen
         android:title="@string/label_edit_nubers"
         android:summary="@string/summary_edit_numbers"
         android:key="edit_numbers">
         <intent android:action="pl.revanmj.smspasswordnotifier.EditNubers"/>
+    </PreferenceScreen>
+    <PreferenceScreen
+        android:title="Test notification"
+        android:summary="Add test notification"
+        android:key="test_noti">
     </PreferenceScreen>
     <Preference
         android:selectable="false"

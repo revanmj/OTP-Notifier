@@ -1,8 +1,12 @@
 package pl.revanmj.smspasswordnotifier;
 
+import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
@@ -72,7 +76,7 @@ public class MessageProcessor {
 
     }
 
-    private static void copyCode(Context context, String code) {
+    public static void copyCode(Context context, String code) {
         // Copy code to the clipboard
         android.content.ClipboardManager clipboard = (android.content.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
         android.content.ClipData clip = android.content.ClipData.newPlainText("someLabel",code);
@@ -82,7 +86,7 @@ public class MessageProcessor {
         Toast.makeText(context, R.string.toast_code_copied, Toast.LENGTH_SHORT).show();
     }
 
-    private static void showNotification(Context context, String code, String sender) {
+    public static void showNotification(Context context, String code, String sender) {
         // Instert space in the middle of the code (if 6 digits or longer) for better readability
         code = insertSpaceInTheMiddle(code);
 
@@ -101,17 +105,33 @@ public class MessageProcessor {
         // Accent color for L/M/N
         int color = ContextCompat.getColor(context, R.color.colorPrimary);
 
+        // Creating intent for notification action
+        Intent intent = new Intent(BroadcastListener.COPY_CODE);
+        intent.putExtra("code", code);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+
         // creating normal notification
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context)
                         .setSmallIcon(R.mipmap.ic_noti_key)
                         .setContentTitle(context.getString(R.string.noti_title))
                         .setContentText(sb)
-                        .setColor(color);
+                        .setColor(color)
+                        .addAction(
+                                R.drawable.ic_noti_copy,
+                                context.getResources().getString(R.string.label_copy_code),
+                                pendingIntent);
 
         // Generate unique id for notification
         Date now = new Date();
         int id = Integer.parseInt(new SimpleDateFormat("ddHHmmss",  Locale.US).format(now));
+
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean heads_up = settings.getBoolean(SharedSettings.KEY_HEADSUP_NOTIFICATIONS, false);
+        if (heads_up) {
+            mBuilder.setPriority(NotificationCompat.PRIORITY_HIGH);
+            mBuilder.setSound(Uri.parse("android.resource://pl.revanmj.smspasswordnotifier/" + R.raw.silent));
+        }
 
         // Show notification
         NotificationManager mNotifyMgr = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);

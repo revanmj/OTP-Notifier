@@ -17,9 +17,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <receiver android:name="SMSListener">
+        <receiver android:name=".BroadcastListener">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+                <action android:name="pl.revanmj.smspasswordnotifier.COPY_CODE"/>
+                <action android:name="pl.revanmj.smspasswordnotifier.TEST_NOTI"/>
             </intent-filter>
         </receiver>
     </application>

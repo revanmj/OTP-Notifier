@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">SMS Password Notifier</string>
-    <string name="noti_title">New code from SMS!</string>
+    <string name="noti_title">New SMS with OTP!</string>
     <string name="toast_code_copied">OTP copied to clipboard</string>
     <string name="label_copy_to_clipboard_switch">Copy OTP to clipboard</string>
     <string name="summary_copy_to_clipboard_switch">Copy extracted one-time-passwords to system\'s clipboard</string>
@@ -8,6 +8,7 @@
     <string name="summary_process_all_messages">App will search for OTPs only in text messages from senders on this list (disable, to scan all text messages)</string>
     <string name="label_edit_nubers">Edit whitelist</string>
     <string name="summary_edit_numbers">Edit list of numbers from which text messages will by scanned by app</string>
+    <string name="label_copy_code">Copy code</string>
     <string name="settings_libs_title">Version 1.0</string>
-    <string name="settings_libs">Bla bla bla</string>
+    <string name="settings_libs">Created by Michal Jakubowski</string>
 </resources>

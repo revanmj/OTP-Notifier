@@ -48,5 +48,14 @@ public class MainActivity extends AppCompatPreferenceActivity {
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
+
+        final PreferenceScreen testNoti = (PreferenceScreen) findPreference("test_noti");
+        testNoti.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                MessageProcessor.showNotification(MainActivity.this, "123456", "ExampleSender");
+                return false;
+            }
+        });
     }
 }

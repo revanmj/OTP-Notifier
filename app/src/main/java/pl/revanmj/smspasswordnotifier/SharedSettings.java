@@ -7,4 +7,5 @@ package pl.revanmj.smspasswordnotifier;
 public class SharedSettings {
     public final static String KEY_USE_WHITELIST = "use_whitelist";
     public final static String KEY_USE_CLIPBOARD = "use_clipboard";
+    public final static String KEY_HEADSUP_NOTIFICATIONS = "headsup_notifications";
 }
