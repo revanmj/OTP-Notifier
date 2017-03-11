@@ -1,6 +1,5 @@
 package pl.revanmj.smspasswordnotifier;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -98,7 +97,7 @@ public class MessageProcessor {
         }
         String lineFormatted = String.format(lineFormat, code);
 
-        // Addin bold to the OTP
+        // Adding bold to the OTP
         Spannable sb = new SpannableString(lineFormatted);
         sb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), lineParamStartPos, lineParamStartPos + code.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
@@ -124,7 +123,7 @@ public class MessageProcessor {
 
         // Generate unique id for notification
         Date now = new Date();
-        int id = Integer.parseInt(new SimpleDateFormat("ddHHmmss",  Locale.US).format(now));
+        int id = Integer.parseInt(new SimpleDateFormat("ddHHmmss", Locale.US).format(now));
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
         boolean heads_up = settings.getBoolean(SharedSettings.KEY_HEADSUP_NOTIFICATIONS, false);

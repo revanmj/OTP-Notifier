@@ -1,4 +1,4 @@
-package pl.revanmj.smspasswordnotifier;
+package pl.revanmj.smspasswordnotifier.activities;
 
 import android.content.res.Configuration;
 import android.os.Bundle;

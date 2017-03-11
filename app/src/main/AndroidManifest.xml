@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="pl.revanmj.smspasswordnotifier">
 
-    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
 
     <application
         android:allowBackup="true"
@@ -10,20 +10,35 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <receiver android:name=".BroadcastListener">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
-                <action android:name="pl.revanmj.smspasswordnotifier.COPY_CODE"/>
-                <action android:name="pl.revanmj.smspasswordnotifier.TEST_NOTI"/>
+                <action android:name="pl.revanmj.smspasswordnotifier.COPY_CODE" />
+                <action android:name="pl.revanmj.smspasswordnotifier.TEST_NOTI" />
             </intent-filter>
         </receiver>
+
+        <activity
+            android:name=".activities.EditWhitelistActivity"
+            android:label="@string/title_activity_edit_whitelist"
+            android:parentActivityName=".activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="pl.revanmj.smspasswordnotifier.activities.MainActivity" />
+            <intent-filter>
+                <action android:name="pl.revanmj.smspasswordnotifier.activities.EditWhitelistActivity" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

@@ -1,4 +1,4 @@
-package pl.revanmj.smspasswordnotifier;
+package pl.revanmj.smspasswordnotifier.activities;
 
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -8,6 +8,10 @@ import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
 import android.os.Bundle;
+
+import pl.revanmj.smspasswordnotifier.MessageProcessor;
+import pl.revanmj.smspasswordnotifier.R;
+import pl.revanmj.smspasswordnotifier.SharedSettings;
 
 public class MainActivity extends AppCompatPreferenceActivity {
 
