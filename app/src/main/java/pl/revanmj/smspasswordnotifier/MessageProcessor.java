@@ -2,6 +2,8 @@ package pl.revanmj.smspasswordnotifier;
 
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.telephony.SmsMessage;
@@ -9,9 +11,13 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.StyleSpan;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.security.InvalidParameterException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
@@ -20,16 +26,17 @@ import static android.content.Context.NOTIFICATION_SERVICE;
  * Created by revanmj on 13.01.2017.
  */
 
-public class NumbersFilter {
+public class MessageProcessor {
     private static final String LOG_TAG = "NumbersFilter";
 
     private static final Set<String> NUMBERS_SET = new HashSet<String>() {{
         add("PayPal");
         add("Info");
         add("AUTHMSG");
+        add("Apple");
     }};
 
-    public static boolean shouldExtractPassword(String address) {
+    private static boolean shouldExtractPassword(String address) {
         Log.d(LOG_TAG, "shouldExtractPassword - address[" + address + "]");
         if (NUMBERS_SET.contains(address))
             return true;
@@ -38,9 +45,12 @@ public class NumbersFilter {
     }
 
     public static void processSms(Context context, SmsMessage sms) {
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean use_whitelist = settings.getBoolean(SharedSettings.KEY_USE_WHITELIST, true);
+
         String phoneNumber = sms.getDisplayOriginatingAddress();
 
-        if (!shouldExtractPassword(phoneNumber)) {
+        if (!shouldExtractPassword(phoneNumber) && use_whitelist) {
             Log.d(LOG_TAG, "processSms - shouldExtractPassword returned false, exiting...");
             return;
         }
@@ -53,7 +63,11 @@ public class NumbersFilter {
             return;
         }
 
-        copyCode(context, code);
+
+        boolean use_clipboard = settings.getBoolean(SharedSettings.KEY_USE_CLIPBOARD, true);
+        if (use_clipboard)
+            copyCode(context, code);
+
         showNotification(context, code, phoneNumber);
 
     }
@@ -63,6 +77,9 @@ public class NumbersFilter {
         android.content.ClipboardManager clipboard = (android.content.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
         android.content.ClipData clip = android.content.ClipData.newPlainText("someLabel",code);
         clipboard.setPrimaryClip(clip);
+
+        // Show to user that code was copied
+        Toast.makeText(context, R.string.toast_code_copied, Toast.LENGTH_SHORT).show();
     }
 
     private static void showNotification(Context context, String code, String sender) {
@@ -92,13 +109,17 @@ public class NumbersFilter {
                         .setContentText(sb)
                         .setColor(color);
 
+        // Generate unique id for notification
+        Date now = new Date();
+        int id = Integer.parseInt(new SimpleDateFormat("ddHHmmss",  Locale.US).format(now));
+
         // Show notification
         NotificationManager mNotifyMgr = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
-        mNotifyMgr.notify(001, mBuilder.build());
+        mNotifyMgr.notify(id, mBuilder.build());
 
     }
 
-    public static String insertSpaceInTheMiddle(String original){
+    private static String insertSpaceInTheMiddle(String original){
         if (original.length() > 5 && original.length() % 2 == 0) {
             int distance = original.length() / 2;
             StringBuilder sb = new StringBuilder();

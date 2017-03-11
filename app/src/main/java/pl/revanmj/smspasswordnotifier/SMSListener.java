@@ -30,7 +30,7 @@ public class SMSListener extends BroadcastReceiver {
                     }
 
                     // Process message
-                    NumbersFilter.processSms(context, sms);
+                    MessageProcessor.processSms(context, sms);
                 }
             }
         } catch (Exception e) {

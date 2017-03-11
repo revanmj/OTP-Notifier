@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreference
+        android:title="@string/label_copy_to_clipboard_switch"
+        android:summary="@string/summary_copy_to_clipboard_switch"
+        android:key="use_clipboard"
+        android:defaultValue="true" />
+    <SwitchPreference
+        android:title="@string/label_process_all_messages"
+        android:summary="@string/summary_process_all_messages"
+        android:key="use_whitelist"
+        android:defaultValue="true" />
+    <PreferenceScreen
+        android:title="@string/label_edit_nubers"
+        android:summary="@string/summary_edit_numbers"
+        android:key="edit_numbers">
+        <intent android:action="pl.revanmj.smspasswordnotifier.EditNubers"/>
+    </PreferenceScreen>
+    <Preference
+        android:selectable="false"
+        android:enabled="true"
+        android:key="app_version"
+        android:title="@string/settings_libs_title"
+        android:summary="@string/settings_libs" />
+</PreferenceScreen>
