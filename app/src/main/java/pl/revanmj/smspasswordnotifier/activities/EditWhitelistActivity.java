@@ -81,9 +81,23 @@ public class EditWhitelistActivity extends AppCompatActivity implements LoaderMa
                 builder.setPositiveButton(R.string.button_add, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        ContentValues cv = new ContentValues();
-                        cv.put(WhitelistProvider.KEY_SENDER, input.getText().toString());
-                        EditWhitelistActivity.this.getContentResolver().insert(WhitelistProvider.CONTENT_URI, cv);
+                        String sender = input.getText().toString();
+                        if (!sender.equals("")) {
+                            ContentValues cv = new ContentValues();
+                            cv.put(WhitelistProvider.KEY_SENDER, sender);
+                            EditWhitelistActivity.this.getContentResolver().insert(WhitelistProvider.CONTENT_URI, cv);
+                        } else {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(EditWhitelistActivity.this);
+                            builder.setTitle(R.string.title_error);
+                            builder.setMessage(R.string.message_empty_sender);
+                            builder.setNegativeButton(R.string.button_ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialogInterface.dismiss();
+                                }
+                            });
+                            builder.create().show();
+                        }
                     }
                 });
                 builder.setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {

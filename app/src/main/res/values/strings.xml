@@ -22,4 +22,6 @@
     <string name="button_ok">OK</string>
     <string name="button_grant">Grant</string>
     <string name="button_exit">Exit</string>
+    <string name="title_error">Error!</string>
+    <string name="message_empty_sender">You cannot add empty sender.</string>
 </resources>
