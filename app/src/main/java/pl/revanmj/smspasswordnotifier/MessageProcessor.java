@@ -5,23 +5,22 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.telephony.SmsMessage;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.style.StyleSpan;
 import android.util.Log;
 import android.widget.Toast;
 
 import java.security.InvalidParameterException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Locale;
-import java.util.Set;
+
+import pl.revanmj.smspasswordnotifier.data.SharedSettings;
+import pl.revanmj.smspasswordnotifier.data.WhitelistProvider;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 
@@ -31,23 +30,23 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class MessageProcessor {
     private static final String LOG_TAG = "NumbersFilter";
+    private Context mContext;
 
-    private static final Set<String> NUMBERS_SET = new HashSet<String>() {{
-        add("PayPal");
-        add("Info");
-        add("AUTHMSG");
-        add("Apple");
-    }};
-
-    private static boolean shouldExtractPassword(String address) {
-        Log.d(LOG_TAG, "shouldExtractPassword - address[" + address + "]");
-        if (NUMBERS_SET.contains(address))
-            return true;
-
-        return false;
+    public MessageProcessor(Context context) {
+        mContext = context;
     }
 
-    public static void processSms(Context context, SmsMessage sms) {
+    private boolean shouldExtractPassword(String address) {
+        Log.d(LOG_TAG, "shouldExtractPassword - address[" + address + "]");
+
+        Cursor cursor = mContext.getContentResolver().query(
+                Uri.withAppendedPath(WhitelistProvider.CONTENT_URI, address),
+                null, null, null, null);
+
+        return cursor.getCount() > 0;
+    }
+
+    public void processSms(Context context, SmsMessage sms) {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
         boolean use_whitelist = settings.getBoolean(SharedSettings.KEY_USE_WHITELIST, true);
 
@@ -65,7 +64,6 @@ public class MessageProcessor {
             Log.d(LOG_TAG, "processSms - extracted code is null, exiting...");
             return;
         }
-
 
         boolean use_clipboard = settings.getBoolean(SharedSettings.KEY_USE_CLIPBOARD, true);
         if (use_clipboard)
@@ -98,8 +96,8 @@ public class MessageProcessor {
         String lineFormatted = String.format(lineFormat, code);
 
         // Adding bold to the OTP
-        Spannable sb = new SpannableString(lineFormatted);
-        sb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), lineParamStartPos, lineParamStartPos + code.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        //Spannable sb = new SpannableString(lineFormatted);
+        //sb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), lineParamStartPos, lineParamStartPos + code.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
         // Accent color for L/M/N
         int color = ContextCompat.getColor(context, R.color.colorPrimary);
@@ -113,8 +111,9 @@ public class MessageProcessor {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context)
                         .setSmallIcon(R.mipmap.ic_noti_key)
-                        .setContentTitle(context.getString(R.string.noti_title))
-                        .setContentText(sb)
+                        //.setSubText(sender) // next to app name
+                        .setContentTitle(code)
+                        .setContentText(sender)
                         .setColor(color)
                         .addAction(
                                 R.drawable.ic_noti_copy,

@@ -14,4 +14,7 @@
     <string name="settings_libs_title">Version 1.0</string>
     <string name="settings_libs">Created by Michal Jakubowski</string>
     <string name="title_activity_edit_whitelist">Edit sender whitelist</string>
+    <string name="title_add_sender">Add sender to whitelist</string>
+    <string name="button_add">Add</string>
+    <string name="button_cancel">Cancel</string>
 </resources>

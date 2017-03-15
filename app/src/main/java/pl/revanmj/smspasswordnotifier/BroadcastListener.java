@@ -34,7 +34,8 @@ public class BroadcastListener extends BroadcastReceiver {
                         }
 
                         // Process message
-                        MessageProcessor.processSms(context, sms);
+                        MessageProcessor mp = new MessageProcessor(context);
+                        mp.processSms(context, sms);
                     }
                 }
             } catch (Exception e) {

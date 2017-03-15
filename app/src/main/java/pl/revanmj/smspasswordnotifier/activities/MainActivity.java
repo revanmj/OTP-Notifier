@@ -9,9 +9,10 @@ import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
 import android.os.Bundle;
 
+import pl.revanmj.smspasswordnotifier.BuildConfig;
 import pl.revanmj.smspasswordnotifier.MessageProcessor;
 import pl.revanmj.smspasswordnotifier.R;
-import pl.revanmj.smspasswordnotifier.SharedSettings;
+import pl.revanmj.smspasswordnotifier.data.SharedSettings;
 
 public class MainActivity extends AppCompatPreferenceActivity {
 
@@ -61,5 +62,8 @@ public class MainActivity extends AppCompatPreferenceActivity {
                 return false;
             }
         });
+        if (!BuildConfig.DEBUG) {
+            getPreferenceScreen().removePreference(testNoti);
+        }
     }
 }

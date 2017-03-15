@@ -39,6 +39,10 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <provider
+            android:name=".data.WhitelistProvider"
+            android:authorities="pl.revanmj.provider.sms_whitelist" />
     </application>
 
 </manifest>

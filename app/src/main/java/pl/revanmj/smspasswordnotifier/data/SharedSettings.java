@@ -1,4 +1,4 @@
-package pl.revanmj.smspasswordnotifier;
+package pl.revanmj.smspasswordnotifier.data;
 
 /**
  * Created by revanmj on 11.03.2017.
