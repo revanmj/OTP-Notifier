@@ -17,4 +17,9 @@
     <string name="title_add_sender">Add sender to whitelist</string>
     <string name="button_add">Add</string>
     <string name="button_cancel">Cancel</string>
+    <string name="title_no_permission">Missing permission!</string>
+    <string name="message_app_no_permission">This app cannot work without persmission to read incoming SMS.</string>
+    <string name="button_ok">OK</string>
+    <string name="button_grant">Grant</string>
+    <string name="button_exit">Exit</string>
 </resources>
