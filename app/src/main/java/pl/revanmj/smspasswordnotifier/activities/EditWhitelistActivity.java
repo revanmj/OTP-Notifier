@@ -18,8 +18,10 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import pl.revanmj.smspasswordnotifier.R;
 import pl.revanmj.smspasswordnotifier.SwipeToDelTouchCallback;
@@ -78,36 +80,38 @@ public class EditWhitelistActivity extends AppCompatActivity implements LoaderMa
                 AlertDialog.Builder builder = new AlertDialog.Builder(EditWhitelistActivity.this);
                 builder.setTitle(R.string.title_add_sender);
                 builder.setView(layout);
-                builder.setPositiveButton(R.string.button_add, new DialogInterface.OnClickListener() {
+                builder.setPositiveButton(R.string.button_add, null);
+                builder.setNegativeButton(R.string.button_cancel, null);
+
+                AlertDialog dialog = builder.create();
+
+                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        String sender = input.getText().toString();
-                        if (!sender.equals("")) {
-                            ContentValues cv = new ContentValues();
-                            cv.put(WhitelistProvider.KEY_SENDER, sender);
-                            EditWhitelistActivity.this.getContentResolver().insert(WhitelistProvider.CONTENT_URI, cv);
-                        } else {
-                            AlertDialog.Builder builder = new AlertDialog.Builder(EditWhitelistActivity.this);
-                            builder.setTitle(R.string.title_error);
-                            builder.setMessage(R.string.message_empty_sender);
-                            builder.setNegativeButton(R.string.button_ok, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    dialogInterface.dismiss();
+                    public void onShow(final DialogInterface dialog) {
+
+                        Button button = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                        button.setOnClickListener(new View.OnClickListener() {
+
+                            @Override
+                            public void onClick(View view) {
+                                String sender = input.getText().toString();
+                                if (!sender.equals("")) {
+                                    ContentValues cv = new ContentValues();
+                                    cv.put(WhitelistProvider.KEY_SENDER, sender);
+                                    EditWhitelistActivity.this.getContentResolver()
+                                            .insert(WhitelistProvider.CONTENT_URI, cv);
+                                    dialog.dismiss();
+                                } else {
+                                    Toast.makeText(
+                                            EditWhitelistActivity.this,
+                                            R.string.message_empty_sender,
+                                            Toast.LENGTH_SHORT).show();
                                 }
-                            });
-                            builder.create().show();
-                        }
-                    }
-                });
-                builder.setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
+                            }
+                        });
                     }
                 });
 
-                AlertDialog dialog = builder.create();
                 // Show keyboard on dialog open
                 dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
                 dialog.show();
