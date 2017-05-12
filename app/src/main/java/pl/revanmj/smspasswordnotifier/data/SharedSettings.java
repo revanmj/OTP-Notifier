@@ -8,4 +8,5 @@ public class SharedSettings {
     public final static String KEY_USE_WHITELIST = "use_whitelist";
     public final static String KEY_USE_CLIPBOARD = "use_clipboard";
     public final static String KEY_HEADSUP_NOTIFICATIONS = "headsup_notifications";
+    public static final String KEY_IS_FIRST_RUN = "is_first_run";
 }

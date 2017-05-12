@@ -1,6 +1,7 @@
 package pl.revanmj.smspasswordnotifier.activities;
 
 import android.Manifest;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -14,10 +15,13 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 
+import java.util.ArrayList;
+
 import pl.revanmj.smspasswordnotifier.BuildConfig;
 import pl.revanmj.smspasswordnotifier.MessageProcessor;
 import pl.revanmj.smspasswordnotifier.R;
 import pl.revanmj.smspasswordnotifier.data.SharedSettings;
+import pl.revanmj.smspasswordnotifier.data.WhitelistProvider;
 
 public class MainActivity extends AppCompatPreferenceActivity {
 
@@ -50,6 +54,12 @@ public class MainActivity extends AppCompatPreferenceActivity {
             editNumbers.setEnabled(false);
         else
             editNumbers.setEnabled(true);
+
+        boolean isFirstRun = settings.getBoolean(SharedSettings.KEY_IS_FIRST_RUN, true);
+        if (isFirstRun) {
+            firstTimeWhitelist();
+            settings.edit().putBoolean(SharedSettings.KEY_IS_FIRST_RUN, false).commit();
+        }
 
         Preference appVersion = findPreference("app_version");
         PackageManager manager = this.getPackageManager();
@@ -84,7 +94,6 @@ public class MainActivity extends AppCompatPreferenceActivity {
                 // Show an explanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
-
                 showPermissionExplanaition();
 
             } else {
@@ -144,5 +153,27 @@ public class MainActivity extends AppCompatPreferenceActivity {
 
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    public void firstTimeWhitelist() {
+        ArrayList<String> defaultWhitelist = new ArrayList<String>() {{
+            add("AUTHMSG"); // Humble Bundle
+            add("Apple");
+            add("FACEBOOK");
+            add("Google");
+            add("Instagram");
+            add("Twitter");
+            add("Verify"); // Microsoft
+        }};
+
+        ArrayList<ContentValues> defaultSenders = new ArrayList<>();
+        for (String sender: defaultWhitelist) {
+            ContentValues tmp = new ContentValues();
+            tmp.put(WhitelistProvider.KEY_SENDER, sender);
+            defaultSenders.add(tmp);
+        }
+
+        ContentValues[] cv = new ContentValues[defaultSenders.size()];
+        getContentResolver().bulkInsert(WhitelistProvider.CONTENT_URI, defaultSenders.toArray(cv));
     }
 }
