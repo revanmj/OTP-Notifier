@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatPreferenceActivity {
         PackageInfo info;
         try {
             info = manager.getPackageInfo(this.getPackageName(), 0);
-            appVersion.setTitle("Wersja " + info.versionName);
+            appVersion.setTitle("Version " + info.versionName);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
