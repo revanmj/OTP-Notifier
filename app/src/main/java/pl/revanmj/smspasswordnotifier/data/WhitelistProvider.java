@@ -68,7 +68,7 @@ public class WhitelistProvider extends ContentProvider {
 
         if (sortOrder == null || sortOrder == ""){
             // By default sort on sender names
-            sortOrder = KEY_SENDER;
+            sortOrder = KEY_SENDER + " COLLATE NOCASE ASC";
         }
         Cursor c = qb.query(db,	projection,	selection, selectionArgs, null, null, sortOrder);
 

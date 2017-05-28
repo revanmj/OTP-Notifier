@@ -1,11 +1,11 @@
 package pl.revanmj.smspasswordnotifier.activities;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -17,8 +17,10 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -84,8 +86,7 @@ public class EditWhitelistActivity extends AppCompatActivity implements LoaderMa
                 builder.setPositiveButton(R.string.button_add, null);
                 builder.setNegativeButton(R.string.button_cancel, null);
 
-                AlertDialog dialog = builder.create();
-
+                final AlertDialog dialog = builder.create();
                 dialog.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
                     public void onShow(final DialogInterface dialog) {
@@ -95,21 +96,29 @@ public class EditWhitelistActivity extends AppCompatActivity implements LoaderMa
 
                             @Override
                             public void onClick(View view) {
-                                String sender = input.getText().toString();
-                                if (!sender.equals("")) {
-                                    ContentValues cv = new ContentValues();
-                                    cv.put(WhitelistProvider.KEY_SENDER, sender);
-                                    EditWhitelistActivity.this.getContentResolver()
-                                            .insert(WhitelistProvider.CONTENT_URI, cv);
-                                    dialog.dismiss();
-                                } else {
-                                    Toast.makeText(
-                                            EditWhitelistActivity.this,
-                                            R.string.message_empty_sender,
-                                            Toast.LENGTH_SHORT).show();
-                                }
+                                addSenderToWhitelist(input, dialog);
                             }
                         });
+                    }
+                });
+
+                // Add listener for Search key presses on virtual keyboard
+                input.setOnKeyListener(new View.OnKeyListener() {
+                    public boolean onKey(View v, int keyCode, KeyEvent event) {
+                        if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                            switch (keyCode) {
+                                case KeyEvent.KEYCODE_DPAD_CENTER:
+                                case KeyEvent.KEYCODE_ENTER:
+                                    addSenderToWhitelist(input, dialog);
+                                    final InputMethodManager imm =
+                                            (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                    imm.toggleSoftInput(InputMethodManager.RESULT_UNCHANGED_HIDDEN, 0);
+                                    return true;
+                                default:
+                                    break;
+                            }
+                        }
+                        return false;
                     }
                 });
 
@@ -119,6 +128,22 @@ public class EditWhitelistActivity extends AppCompatActivity implements LoaderMa
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    private void addSenderToWhitelist(EditText input, DialogInterface dialog) {
+        String sender = input.getText().toString();
+        if (!sender.equals("")) {
+            ContentValues cv = new ContentValues();
+            cv.put(WhitelistProvider.KEY_SENDER, sender);
+            EditWhitelistActivity.this.getContentResolver()
+                    .insert(WhitelistProvider.CONTENT_URI, cv);
+            dialog.dismiss();
+        } else {
+            Toast.makeText(
+                    EditWhitelistActivity.this,
+                    R.string.message_empty_sender,
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
