@@ -13,16 +13,18 @@ import pl.revanmj.smspasswordnotifier.R;
  * Created by revanmj on 15.03.2017.
  */
 
-public class WhitelistAdapter extends RecyclerView.Adapter<WhitelistAdapter.WhitelistItemHolder> {
+public class WhitelistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private static final int EMPTY_VIEW = 10;
     private Cursor mCursor;
 
-    public void swapCursor(Cursor c) {
-        mCursor = c;
-        notifyDataSetChanged();
-    }
-
     @Override
-    public WhitelistItemHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
+        if (viewType == EMPTY_VIEW) {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.empty_view, parent, false);
+            return new EmptyViewHolder(v);
+        }
+
         View itemView = LayoutInflater.
                 from(parent.getContext()).
                 inflate(R.layout.edit_whitelist_item, parent, false);
@@ -31,22 +33,37 @@ public class WhitelistAdapter extends RecyclerView.Adapter<WhitelistAdapter.Whit
     }
 
     @Override
-    public void onBindViewHolder(WhitelistItemHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         Cursor item = getItem(position);
-        holder.bind(item.getInt(WhitelistProvider.ID), item.getString(WhitelistProvider.SENDER));
+        if (holder instanceof WhitelistItemHolder)
+            ((WhitelistItemHolder)holder).bind(
+                    item.getInt(WhitelistProvider.ID),
+                    item.getString(WhitelistProvider.SENDER));
     }
 
     @Override
     public int getItemCount() {
-        if (mCursor != null)
+        if (mCursor != null && mCursor.getCount() > 0)
             return mCursor.getCount();
         else
-            return 0;
+            return 1;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (mCursor == null || mCursor.getCount() == 0) {
+            return EMPTY_VIEW;
+        }
+        return super.getItemViewType(position);
+    }
+
+    public void swapCursor(Cursor c) {
+        mCursor = c;
+        notifyDataSetChanged();
     }
 
     public Cursor getItem(int pos) {
-        if (this.mCursor != null && !this.mCursor.isClosed())
-        {
+        if (this.mCursor != null && !this.mCursor.isClosed()) {
             this.mCursor.moveToPosition(pos);
         }
 
@@ -71,6 +88,12 @@ public class WhitelistAdapter extends RecyclerView.Adapter<WhitelistAdapter.Whit
 
         public int getId() {
             return _id;
+        }
+    }
+
+    public class EmptyViewHolder extends RecyclerView.ViewHolder {
+        public EmptyViewHolder(View itemView) {
+            super(itemView);
         }
     }
 }
