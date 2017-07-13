@@ -1,11 +1,17 @@
 package pl.revanmj.smspasswordnotifier.activities;
 
 import android.Manifest;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.net.Uri;
+import android.os.Build;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
@@ -108,6 +114,32 @@ public class MainActivity extends AppCompatPreferenceActivity {
                 // app-defined int constant. The callback method gets the
                 // result of the request.
             }
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            SwitchPreference headsUpSwitch = (SwitchPreference) findPreference("headsup_notifications");
+            getPreferenceScreen().removePreference(headsUpSwitch);
+
+            NotificationManager mNotificationManager =
+                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            // The id of the channel.
+            String id = getString(R.string.noti_channel_id);
+            // The user-visible name of the channel.
+            CharSequence name = getString(R.string.noti_channel_name);
+            // The user-visible description of the channel.
+            String description = getString(R.string.noti_channel_description);
+
+            NotificationChannel mChannel = new NotificationChannel(id, name, NotificationManager.IMPORTANCE_DEFAULT);
+
+            mChannel.setDescription(description);
+            mChannel.enableLights(true);
+            mChannel.setShowBadge(false);
+            // Sets the notification light color for notifications posted to this
+            // channel, if the device supports this feature.
+            mChannel.setLightColor(Color.BLUE);
+            mNotificationManager.createNotificationChannel(mChannel);
+        } else {
+            PreferenceScreen editNotifications = (PreferenceScreen) findPreference("edit_notifications");
+            getPreferenceScreen().removePreference(editNotifications);
         }
     }
 

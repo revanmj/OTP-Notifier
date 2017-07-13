@@ -25,4 +25,9 @@
     <string name="title_error">Error!</string>
     <string name="message_empty_sender">You cannot add empty sender.</string>
     <string name="label_empty_list">No senders on the whitelist yet</string>
+    <string name="label_edit_notifications">Notifications Settings</string>
+    <string name="summary_edit_notifications">Change settings like importance (and thus heads up status), sound, etc.</string>
+    <string name="noti_channel_description">Shows notifications with OTPs extracted from text messages</string>
+    <string name="noti_channel_id">otp_notifications</string>
+    <string name="noti_channel_name">OTP Channel</string>
 </resources>

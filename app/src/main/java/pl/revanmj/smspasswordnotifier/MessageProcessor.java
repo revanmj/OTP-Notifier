@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
@@ -52,7 +53,7 @@ public class MessageProcessor {
 
         String phoneNumber = sms.getDisplayOriginatingAddress();
 
-        if (!shouldExtractPassword(phoneNumber) && use_whitelist) {
+        if (use_whitelist && !shouldExtractPassword(phoneNumber)) {
             Log.d(LOG_TAG, "processSms - shouldExtractPassword returned false, exiting...");
             return;
         }
@@ -109,7 +110,7 @@ public class MessageProcessor {
 
         // creating normal notification
         NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(context)
+                new NotificationCompat.Builder(context, context.getString(R.string.noti_channel_id))
                         .setSmallIcon(R.mipmap.ic_noti_key)
                         //.setSubText(sender) // next to app name
                         .setContentTitle(code)
@@ -126,7 +127,7 @@ public class MessageProcessor {
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
         boolean heads_up = settings.getBoolean(SharedSettings.KEY_HEADSUP_NOTIFICATIONS, false);
-        if (heads_up) {
+        if (heads_up && Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             mBuilder.setPriority(NotificationCompat.PRIORITY_HIGH);
             mBuilder.setSound(Uri.parse("android.resource://pl.revanmj.smspasswordnotifier/" + R.raw.silent));
         }

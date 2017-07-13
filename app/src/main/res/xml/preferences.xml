@@ -16,6 +16,15 @@
         android:key="headsup_notifications"
         android:defaultValue="false" />
     <PreferenceScreen
+        android:title="@string/label_edit_notifications"
+        android:summary="@string/summary_edit_notifications"
+        android:key="edit_notifications">
+        <intent android:action="android.settings.CHANNEL_NOTIFICATION_SETTINGS" >
+            <extra android:name="android.provider.extra.CHANNEL_ID" android:value="@string/noti_channel_id" />
+            <extra android:name="android.provider.extra.APP_PACKAGE" android:value="pl.revanmj.smspasswordnotifier" />
+        </intent>
+    </PreferenceScreen>
+    <PreferenceScreen
         android:title="@string/label_edit_nubers"
         android:summary="@string/summary_edit_numbers"
         android:key="edit_numbers">
