@@ -5,12 +5,10 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Build;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
@@ -42,16 +40,13 @@ public class MainActivity extends AppCompatPreferenceActivity {
         final SwitchPreference useWhitelist = (SwitchPreference) findPreference(SharedSettings.KEY_USE_WHITELIST);
         final PreferenceScreen editNumbers = (PreferenceScreen) findPreference("edit_numbers");
 
-        useWhitelist.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                Boolean value = (Boolean) newValue;
-                if (!value)
-                    editNumbers.setEnabled(false);
-                else
-                    editNumbers.setEnabled(true);
-                return true;
-            }
+        useWhitelist.setOnPreferenceChangeListener((preference, newValue) -> {
+            Boolean value = (Boolean) newValue;
+            if (!value)
+                editNumbers.setEnabled(false);
+            else
+                editNumbers.setEnabled(true);
+            return true;
         });
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -78,12 +73,9 @@ public class MainActivity extends AppCompatPreferenceActivity {
         }
 
         final PreferenceScreen testNoti = (PreferenceScreen) findPreference("test_noti");
-        testNoti.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                MessageProcessor.showNotification(MainActivity.this, "123456", "ExampleSender");
-                return false;
-            }
+        testNoti.setOnPreferenceClickListener(preference -> {
+            MessageProcessor.showNotification(MainActivity.this, "123456", "ExampleSender");
+            return false;
         });
         if (!BuildConfig.DEBUG) {
             getPreferenceScreen().removePreference(testNoti);
@@ -165,22 +157,16 @@ public class MainActivity extends AppCompatPreferenceActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle(R.string.title_no_permission);
         builder.setMessage(R.string.message_app_no_permission);
-        builder.setPositiveButton(R.string.button_grant, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
+        builder.setPositiveButton(R.string.button_grant, (dialogInterface, i) -> {
+            dialogInterface.dismiss();
 
-                ActivityCompat.requestPermissions(MainActivity.this,
-                        new String[]{Manifest.permission.RECEIVE_SMS},
-                        MY_PERMISSIONS_REQUEST_RECEIVE_SMS);
-            }
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[]{Manifest.permission.RECEIVE_SMS},
+                    MY_PERMISSIONS_REQUEST_RECEIVE_SMS);
         });
-        builder.setNegativeButton(R.string.button_exit, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-                MainActivity.this.finish();
-            }
+        builder.setNegativeButton(R.string.button_exit, (dialogInterface, i) -> {
+            dialogInterface.dismiss();
+            MainActivity.this.finish();
         });
 
         AlertDialog dialog = builder.create();

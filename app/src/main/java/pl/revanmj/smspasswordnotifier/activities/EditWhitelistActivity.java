@@ -39,10 +39,10 @@ public class EditWhitelistActivity extends AppCompatActivity implements LoaderMa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_whitelist);
-        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        RecyclerView recyclerView = findViewById(R.id.recyclerView);
 
         // Setting up RecyclerView
         rcAdapter = new WhitelistAdapter();
@@ -65,67 +65,53 @@ public class EditWhitelistActivity extends AppCompatActivity implements LoaderMa
         // init cursor loader
         getSupportLoaderManager().initLoader(1, null, this);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(view -> {
 
-                // All this to set up proper padding ...
-                LinearLayout layout = new LinearLayout(EditWhitelistActivity.this);
-                layout.setOrientation(LinearLayout.VERTICAL);
-                layout.setGravity(Gravity.CENTER_HORIZONTAL);
-                final EditText input = new EditText(EditWhitelistActivity.this);
-                input.setSingleLine(true);
-                layout.setPadding(pxToDp(20), 0, pxToDp(20), 0);
-                input.setHint("Sender's name or number");
-                layout.addView(input);
+            // All this to set up proper padding ...
+            LinearLayout layout = new LinearLayout(EditWhitelistActivity.this);
+            layout.setOrientation(LinearLayout.VERTICAL);
+            layout.setGravity(Gravity.CENTER_HORIZONTAL);
+            final EditText input = new EditText(EditWhitelistActivity.this);
+            input.setSingleLine(true);
+            layout.setPadding(pxToDp(20), 0, pxToDp(20), 0);
+            input.setHint("Sender's name or number");
+            layout.addView(input);
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(EditWhitelistActivity.this);
-                builder.setTitle(R.string.title_add_sender);
-                builder.setView(layout);
-                builder.setPositiveButton(R.string.button_add, null);
-                builder.setNegativeButton(R.string.button_cancel, null);
+            AlertDialog.Builder builder = new AlertDialog.Builder(EditWhitelistActivity.this);
+            builder.setTitle(R.string.title_add_sender);
+            builder.setView(layout);
+            builder.setPositiveButton(R.string.button_add, null);
+            builder.setNegativeButton(R.string.button_cancel, null);
 
-                final AlertDialog dialog = builder.create();
-                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                    @Override
-                    public void onShow(final DialogInterface dialog) {
+            final AlertDialog dialog = builder.create();
+            dialog.setOnShowListener(dialog1 -> {
 
-                        Button button = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
-                        button.setOnClickListener(new View.OnClickListener() {
+                Button button = ((AlertDialog) dialog1).getButton(AlertDialog.BUTTON_POSITIVE);
+                button.setOnClickListener(view1 -> addSenderToWhitelist(input, dialog1));
+            });
 
-                            @Override
-                            public void onClick(View view) {
-                                addSenderToWhitelist(input, dialog);
-                            }
-                        });
+            // Add listener for Search key presses on virtual keyboard
+            input.setOnKeyListener((v, keyCode, event) -> {
+                if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                    switch (keyCode) {
+                        case KeyEvent.KEYCODE_DPAD_CENTER:
+                        case KeyEvent.KEYCODE_ENTER:
+                            addSenderToWhitelist(input, dialog);
+                            final InputMethodManager imm =
+                                    (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.toggleSoftInput(InputMethodManager.RESULT_UNCHANGED_HIDDEN, 0);
+                            return true;
+                        default:
+                            break;
                     }
-                });
+                }
+                return false;
+            });
 
-                // Add listener for Search key presses on virtual keyboard
-                input.setOnKeyListener(new View.OnKeyListener() {
-                    public boolean onKey(View v, int keyCode, KeyEvent event) {
-                        if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                            switch (keyCode) {
-                                case KeyEvent.KEYCODE_DPAD_CENTER:
-                                case KeyEvent.KEYCODE_ENTER:
-                                    addSenderToWhitelist(input, dialog);
-                                    final InputMethodManager imm =
-                                            (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                    imm.toggleSoftInput(InputMethodManager.RESULT_UNCHANGED_HIDDEN, 0);
-                                    return true;
-                                default:
-                                    break;
-                            }
-                        }
-                        return false;
-                    }
-                });
-
-                // Show keyboard on dialog open
-                dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-                dialog.show();
-            }
+            // Show keyboard on dialog open
+            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+            dialog.show();
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }

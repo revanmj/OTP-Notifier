@@ -3,6 +3,7 @@ package pl.revanmj.smspasswordnotifier;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
 
@@ -17,20 +18,20 @@ public class BroadcastListener extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         final Bundle bundle = intent.getExtras();
 
-        if (intent.getAction().equals(NEW_SMS_ACTION)) {
+        if (intent.getAction() != null && intent.getAction().equals(NEW_SMS_ACTION)) {
             try {
                 if (bundle != null) {
 
                     // A PDU is a "protocol data unit". This is the industrial standard for SMS message
                     final Object[] pdusObj = (Object[]) bundle.get("pdus");
-                    for (int i = 0; i < pdusObj.length; i++) {
+                    for (Object aPdusObj : pdusObj) {
 
                         // This will create an SmsMessage object from the received pdu
                         SmsMessage sms = null;
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                            sms = SmsMessage.createFromPdu((byte[]) pdusObj[i], "3gpp");
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            sms = SmsMessage.createFromPdu((byte[]) aPdusObj, "3gpp");
                         } else {
-                            sms = SmsMessage.createFromPdu((byte[]) pdusObj[i]);
+                            sms = SmsMessage.createFromPdu((byte[]) aPdusObj);
                         }
 
                         // Process message

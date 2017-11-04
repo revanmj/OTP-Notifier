@@ -13,8 +13,7 @@ public class CodeExtractor {
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(message);
         if (matcher.find()) {
-            String code = matcher.group(0);
-            return code;
+            return matcher.group(0);
         }
 
         return null;
