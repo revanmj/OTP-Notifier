@@ -12,9 +12,17 @@ public class CodeExtractor {
         String regex = "([0-9]{3}( |-)[0-9]{3}( |-)[0-9]{3}|[0-9]{3,4}( |-)[0-9]{3,4}|[0-9]{4,9})";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(message);
-        if (matcher.find()) {
-            return matcher.group(0);
+
+        String result = "";
+
+        while (matcher.find()) {
+            String tmp = matcher.group();
+            if (tmp.length() > result.length())
+                result = tmp;
         }
+
+        if (!result.isEmpty())
+            return result;
 
         return null;
     }
