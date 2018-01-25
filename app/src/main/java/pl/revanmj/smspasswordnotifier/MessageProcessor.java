@@ -15,7 +15,6 @@ import android.telephony.SmsMessage;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.security.InvalidParameterException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -33,33 +32,33 @@ public class MessageProcessor {
     private static final String LOG_TAG = "NumbersFilter";
     private Context mContext;
 
-    public MessageProcessor(Context context) {
+    MessageProcessor(Context context) {
         mContext = context;
     }
 
-    private boolean shouldExtractPassword(String address) {
-        Log.d(LOG_TAG, "shouldExtractPassword - address[" + address + "]");
-
-        Cursor cursor = mContext.getContentResolver().query(
-                Uri.withAppendedPath(WhitelistProvider.CONTENT_URI, address),
-                null, null, null, null);
-
-        return cursor.getCount() > 0;
-    }
-
-    public void processSms(Context context, SmsMessage sms) {
+    void processSms(Context context, SmsMessage sms) {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
         boolean use_whitelist = settings.getBoolean(SharedSettings.KEY_USE_WHITELIST, true);
 
         String phoneNumber = sms.getDisplayOriginatingAddress();
 
-        if (use_whitelist && !shouldExtractPassword(phoneNumber)) {
+        Cursor cursor = mContext.getContentResolver().query(
+                Uri.withAppendedPath(WhitelistProvider.CONTENT_URI, phoneNumber),
+                null, null, null, null);
+        int cursorCount = cursor != null ? cursor.getCount() : 0;
+
+        if (use_whitelist && cursorCount < 1) {
             Log.d(LOG_TAG, "processSms - shouldExtractPassword returned false, exiting...");
+            if (cursor != null)
+                cursor.close();
             return;
         }
 
         String message = sms.getDisplayMessageBody();
-        String code = CodeExtractor.extractCode(message);
+        String regex = cursor != null ? cursor.getString(WhitelistProvider.REGEX) : null;
+        if (cursor != null)
+            cursor.close();
+        String code = CodeExtractor.extractCode(message, regex);
 
         if (code == null) {
             Log.d(LOG_TAG, "processSms - extracted code is null, exiting...");
@@ -74,7 +73,7 @@ public class MessageProcessor {
 
     }
 
-    public static void copyCode(Context context, String code) {
+    static void copyCode(Context context, String code) {
         // Copy code to the clipboard
         android.content.ClipboardManager clipboard = (android.content.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
         android.content.ClipData clip = android.content.ClipData.newPlainText("someLabel",code);
@@ -88,7 +87,7 @@ public class MessageProcessor {
         // Instert space in the middle of the code (if 6 digits or longer) for better readability
         code = insertSpaceInTheMiddle(code);
 
-        // Prepare formatted string with notification content text
+        /*// Prepare formatted string with notification content text
         String lineFormat = sender + ": %s";
         int lineParamStartPos = lineFormat.indexOf("%s");
         if (lineParamStartPos < 0) {
@@ -97,8 +96,8 @@ public class MessageProcessor {
         String lineFormatted = String.format(lineFormat, code);
 
         // Adding bold to the OTP
-        //Spannable sb = new SpannableString(lineFormatted);
-        //sb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), lineParamStartPos, lineParamStartPos + code.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        Spannable sb = new SpannableString(lineFormatted);
+        sb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), lineParamStartPos, lineParamStartPos + code.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);*/
 
         // Accent color for L/M/N
         int color = ContextCompat.getColor(context, R.color.colorPrimary);

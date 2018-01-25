@@ -24,6 +24,7 @@ import java.util.List;
 public class WhitelistProvider extends ContentProvider {
     public static final int ID = 0;
     public static final int SENDER = 1;
+    public static final int REGEX = 2;
 
     public static final String AUTHORITY = "pl.revanmj.provider.sms_whitelist";
     public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/senders");
@@ -150,20 +151,22 @@ public class WhitelistProvider extends ContentProvider {
     }
 
     private SQLiteDatabase db;
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     private static final String DATABASE_NAME = "whitelist.db";
     private static final String TABLE_SENDERS = "Senders";
     public static final String KEY_ID = "sender_id";
     public static final String KEY_SENDER = "name";
+    public static final String KEY_REGEX = "regex";
 
     private static final String TABLE_CREATE =
             "CREATE TABLE " + TABLE_SENDERS + " ( " +
                     KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    KEY_SENDER + " TEXT )";
+                    KEY_SENDER + " TEXT, " +
+                    KEY_REGEX + " TEXT )";
 
     public static class WhitelistSqlHelper extends SQLiteOpenHelper {
 
-        public WhitelistSqlHelper(Context context) {
+        WhitelistSqlHelper(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
         }
 
@@ -196,10 +199,13 @@ public class WhitelistProvider extends ContentProvider {
             for (int i = 0; i < senders.size(); i++) {
                 ContentValues values = new ContentValues();
                 values.put(KEY_SENDER, senders.get(i));
+                values.putNull(KEY_REGEX);
 
                 // 3. insert
                 db.insert(TABLE_SENDERS, null, values);
             }
+
+            cursor.close();
         }
     }
 }

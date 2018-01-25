@@ -8,9 +8,14 @@ import java.util.regex.Pattern;
  */
 
 public class CodeExtractor {
-    public static String extractCode(String message) {
+    public static String extractCode(String message, String customRegex) {
         String regex = "([0-9]{3}( |-)[0-9]{3}( |-)[0-9]{3}|[0-9]{3,4}( |-)[0-9]{3,4}|[0-9]{4,9})";
-        Pattern pattern = Pattern.compile(regex);
+
+        Pattern pattern = null;
+        if (customRegex != null && !customRegex.isEmpty())
+            pattern = Pattern.compile(customRegex);
+        else
+            pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(message);
 
         String result = "";
