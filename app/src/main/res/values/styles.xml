@@ -6,11 +6,23 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="actionModeStyle">@style/CustomActionModeStyle</item>
+        <item name="actionModeCloseDrawable">@drawable/ic_check_grey600_24dp</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="windowActionModeOverlay">true</item>
+    </style>
+
+    <style name="CustomActionModeStyle" parent="Widget.AppCompat.ActionMode">
+        <item name="background">@color/icons</item>
+        <item name="titleTextStyle">@style/AppTheme.ActionMode.Title</item>
+    </style>
+
+    <style name="AppTheme.ActionMode.Title" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textColor">@android:color/black</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

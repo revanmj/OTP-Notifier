@@ -11,14 +11,15 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.View;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -27,93 +28,142 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import pl.revanmj.smspasswordnotifier.R;
-import pl.revanmj.smspasswordnotifier.SwipeToDelTouchCallback;
 import pl.revanmj.smspasswordnotifier.data.WhitelistAdapter;
 import pl.revanmj.smspasswordnotifier.data.WhitelistProvider;
 
 public class EditWhitelistActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private WhitelistAdapter rcAdapter;
+    private ActionMode mActionMode;
+    private ActionMode.Callback mActionModeCallback;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_whitelist);
+
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        RecyclerView recyclerView = findViewById(R.id.recyclerView);
-
         // Setting up RecyclerView
-        rcAdapter = new WhitelistAdapter();
+        RecyclerView recyclerView = findViewById(R.id.recyclerView);
+        rcAdapter = new WhitelistAdapter(new WhitelistAdapter.ClickListener() {
+            @Override
+            public void onItemClicked(int position) {
+                if (mActionMode != null) {
+                    toggleSelection(position);
+                } else {
+                    // TODO: Add opening edit dialog
+                }
+            }
+
+            @Override
+            public boolean onItemLongClicked(int position) {
+                if (mActionMode == null) {
+                    mActionMode = startSupportActionMode(mActionModeCallback);
+                }
+                toggleSelection(position);
+                return true;
+            }
+        });
         recyclerView.setAdapter(rcAdapter);
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager llm = new LinearLayoutManager(this);
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(llm);
 
+        mActionModeCallback = new ActionMode.Callback() {
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                mode.getMenuInflater().inflate (R.menu.menu_whitelist_action, menu);
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.action_delete:
+                        // TODO: Add deleting selected items
+                        Toast.makeText(EditWhitelistActivity.this, "Delete !!!",
+                                Toast.LENGTH_SHORT).show();
+                        mode.finish();
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+                rcAdapter.clearSelection();
+                mActionMode = null;
+            }
+        };
+
         // Adding divider
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
                 llm.getOrientation());
         recyclerView.addItemDecoration(dividerItemDecoration);
-
-        // Adding swipe to delete callback
-        SwipeToDelTouchCallback stdcallback = new SwipeToDelTouchCallback(this);
-        ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(stdcallback);
-        mItemTouchHelper.attachToRecyclerView(recyclerView);
 
         // init cursor loader
         getSupportLoaderManager().initLoader(1, null, this);
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> {
-
-            // All this to set up proper padding ...
-            LinearLayout layout = new LinearLayout(EditWhitelistActivity.this);
-            layout.setOrientation(LinearLayout.VERTICAL);
-            layout.setGravity(Gravity.CENTER_HORIZONTAL);
-            final EditText input = new EditText(EditWhitelistActivity.this);
-            input.setSingleLine(true);
-            layout.setPadding(pxToDp(20), 0, pxToDp(20), 0);
-            input.setHint("Sender's name or number");
-            layout.addView(input);
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(EditWhitelistActivity.this);
-            builder.setTitle(R.string.title_add_sender);
-            builder.setView(layout);
-            builder.setPositiveButton(R.string.button_add, null);
-            builder.setNegativeButton(R.string.button_cancel, null);
-
-            final AlertDialog dialog = builder.create();
-            dialog.setOnShowListener(dialog1 -> {
-
-                Button button = ((AlertDialog) dialog1).getButton(AlertDialog.BUTTON_POSITIVE);
-                button.setOnClickListener(view1 -> addSenderToWhitelist(input, dialog1));
-            });
-
-            // Add listener for Search key presses on virtual keyboard
-            input.setOnKeyListener((v, keyCode, event) -> {
-                if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                    switch (keyCode) {
-                        case KeyEvent.KEYCODE_DPAD_CENTER:
-                        case KeyEvent.KEYCODE_ENTER:
-                            addSenderToWhitelist(input, dialog);
-                            final InputMethodManager imm =
-                                    (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                            imm.toggleSoftInput(InputMethodManager.RESULT_UNCHANGED_HIDDEN, 0);
-                            return true;
-                        default:
-                            break;
-                    }
-                }
-                return false;
-            });
-
-            // Show keyboard on dialog open
-            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-            dialog.show();
+            showEditDialog();
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    private void showEditDialog() {
+        // All this to set up proper padding ...
+        LinearLayout layout = new LinearLayout(EditWhitelistActivity.this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setGravity(Gravity.CENTER_HORIZONTAL);
+        final EditText input = new EditText(EditWhitelistActivity.this);
+        input.setSingleLine(true);
+        layout.setPadding(pxToDp(20), 0, pxToDp(20), 0);
+        input.setHint("Sender's name or number");
+        layout.addView(input);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(EditWhitelistActivity.this);
+        builder.setTitle(R.string.title_add_sender);
+        builder.setView(layout);
+        builder.setPositiveButton(R.string.button_add, null);
+        builder.setNegativeButton(R.string.button_cancel, null);
+
+        final AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(dialog1 -> {
+            Button button = ((AlertDialog) dialog1).getButton(AlertDialog.BUTTON_POSITIVE);
+            button.setOnClickListener(view1 -> addSenderToWhitelist(input, dialog1));
+        });
+
+        // Add listener for Search key presses on virtual keyboard
+        input.setOnKeyListener((v, keyCode, event) -> {
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                switch (keyCode) {
+                    case KeyEvent.KEYCODE_DPAD_CENTER:
+                    case KeyEvent.KEYCODE_ENTER:
+                        addSenderToWhitelist(input, dialog);
+                        final InputMethodManager imm =
+                                (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.toggleSoftInput(InputMethodManager.RESULT_UNCHANGED_HIDDEN, 0);
+                        return true;
+                    default:
+                        break;
+                }
+            }
+            return false;
+        });
+
+        // Show keyboard on dialog open
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        dialog.show();
     }
 
     private void addSenderToWhitelist(EditText input, DialogInterface dialog) {
@@ -129,6 +179,18 @@ public class EditWhitelistActivity extends AppCompatActivity implements LoaderMa
                     EditWhitelistActivity.this,
                     R.string.message_empty_sender,
                     Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void toggleSelection(int position) {
+        rcAdapter.toggleSelection(position);
+        int count = rcAdapter.getSelectedItemCount();
+
+        if (count == 0) {
+            mActionMode.finish();
+        } else {
+            mActionMode.setTitle(String.valueOf(count));
+            mActionMode.invalidate();
         }
     }
 

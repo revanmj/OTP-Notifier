@@ -30,4 +30,5 @@
     <string name="noti_channel_description">Shows notifications with OTPs extracted from text messages</string>
     <string name="noti_channel_id">otp_notifications</string>
     <string name="noti_channel_name">OTP Channel</string>
+    <string name="action_delete">Delete</string>
 </resources>

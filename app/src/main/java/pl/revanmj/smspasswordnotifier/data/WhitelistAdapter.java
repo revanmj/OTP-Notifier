@@ -1,10 +1,13 @@
 package pl.revanmj.smspasswordnotifier.data;
 
 import android.database.Cursor;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
+import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import pl.revanmj.smspasswordnotifier.R;
@@ -16,6 +19,12 @@ import pl.revanmj.smspasswordnotifier.R;
 public class WhitelistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int EMPTY_VIEW = 10;
     private Cursor mCursor;
+    private ClickListener mClickListener;
+    private SparseIntArray mSelectedItems = new SparseIntArray();
+
+    public WhitelistAdapter(ClickListener listener) {
+        mClickListener = listener;
+    }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -35,10 +44,26 @@ public class WhitelistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         Cursor item = getItem(position);
-        if (holder instanceof WhitelistItemHolder)
-            ((WhitelistItemHolder)holder).bind(
+        if (holder instanceof WhitelistItemHolder) {
+            ((WhitelistItemHolder) holder).bind(
                     item.getInt(WhitelistProvider.ID),
                     item.getString(WhitelistProvider.SENDER));
+            holder.itemView.setOnClickListener(view -> {
+                if (mClickListener != null) {
+                    mClickListener.onItemClicked(position);
+                }
+            });
+            holder.itemView.setOnLongClickListener(view -> {
+                if (mClickListener != null) {
+                    return mClickListener.onItemLongClicked(position);
+                }
+                return false;
+            });
+            if (isSelected(position))
+                ((WhitelistItemHolder)holder).hightlightItem();
+            else
+                ((WhitelistItemHolder)holder).unhighlightItem();
+        }
     }
 
     @Override
@@ -70,18 +95,43 @@ public class WhitelistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         return this.mCursor;
     }
 
-    public static class WhitelistItemHolder extends RecyclerView.ViewHolder {
+    public boolean isSelected(int position) {
+        return mSelectedItems.get(position, -1) >= 0;
+    }
+
+    public void toggleSelection(int position) {
+        if (mSelectedItems.get(position, -1) >= 0) {
+            mSelectedItems.delete(position);
+        } else {
+            mSelectedItems.put(position, getItem(position).getInt(WhitelistProvider.ID));
+        }
+        notifyItemChanged(position);
+    }
+
+    public int getSelectedItemCount() {
+        return mSelectedItems.size();
+    }
+
+    public void clearSelection() {
+        for (int i = 0; i < mSelectedItems.size(); ++i) {
+            notifyItemChanged(mSelectedItems.keyAt(i));
+        }
+        mSelectedItems.clear();
+    }
+
+    public class WhitelistItemHolder extends RecyclerView.ViewHolder {
         private TextView sender;
         private int _id;
+        private LinearLayout linearLayout;
 
-
-        public WhitelistItemHolder(View itemView) {
+        WhitelistItemHolder(View itemView) {
             super(itemView);
 
-            sender = (TextView) itemView.findViewById(R.id.sender);
+            sender = itemView.findViewById(R.id.sender);
+            linearLayout = itemView.findViewById(R.id.linear_layout);
         }
 
-        public void bind(int id, String sender) {
+        void bind(int id, String sender) {
             this._id = id;
             this.sender.setText(sender);
         }
@@ -89,11 +139,24 @@ public class WhitelistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         public int getId() {
             return _id;
         }
+
+        void hightlightItem() {
+            linearLayout.setBackgroundResource(R.color.selected);
+        }
+
+        void unhighlightItem() {
+            linearLayout.setBackgroundColor(Color.TRANSPARENT);
+        }
     }
 
     public class EmptyViewHolder extends RecyclerView.ViewHolder {
-        public EmptyViewHolder(View itemView) {
+        EmptyViewHolder(View itemView) {
             super(itemView);
         }
+    }
+
+    public interface ClickListener {
+        void onItemClicked(int position);
+        boolean onItemLongClicked(int position);
     }
 }
