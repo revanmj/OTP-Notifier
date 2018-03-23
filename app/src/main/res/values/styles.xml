@@ -16,6 +16,10 @@
         <item name="windowActionModeOverlay">true</item>
     </style>
 
+    <style name="AppThemeSettings" parent="AppTheme">
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
+    </style>
+
     <style name="CustomActionModeStyle" parent="Widget.AppCompat.ActionMode">
         <item name="background">@color/icons</item>
         <item name="titleTextStyle">@style/AppTheme.ActionMode.Title</item>
