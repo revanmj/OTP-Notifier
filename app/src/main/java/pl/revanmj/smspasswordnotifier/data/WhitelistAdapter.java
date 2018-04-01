@@ -112,6 +112,17 @@ public class WhitelistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         return mSelectedItems.size();
     }
 
+    public String getSelectedItemsWhere() {
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < mSelectedItems.size(); ++i) {
+            if (i > 0)
+                result.append(" OR ");
+            result.append(WhitelistProvider.KEY_ID).append(" = ")
+                    .append(mSelectedItems.get(mSelectedItems.keyAt(i)));
+        }
+        return result.toString();
+    }
+
     public void clearSelection() {
         for (int i = 0; i < mSelectedItems.size(); ++i) {
             notifyItemChanged(mSelectedItems.keyAt(i));

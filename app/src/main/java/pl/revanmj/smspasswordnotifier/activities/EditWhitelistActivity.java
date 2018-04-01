@@ -32,7 +32,7 @@ import pl.revanmj.smspasswordnotifier.data.WhitelistAdapter;
 import pl.revanmj.smspasswordnotifier.data.WhitelistProvider;
 
 public class EditWhitelistActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
-    private WhitelistAdapter rcAdapter;
+    private WhitelistAdapter mRvAdapter;
     private ActionMode mActionMode;
     private ActionMode.Callback mActionModeCallback;
 
@@ -47,7 +47,7 @@ public class EditWhitelistActivity extends AppCompatActivity implements LoaderMa
 
         // Setting up RecyclerView
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
-        rcAdapter = new WhitelistAdapter(new WhitelistAdapter.ClickListener() {
+        mRvAdapter = new WhitelistAdapter(new WhitelistAdapter.ClickListener() {
             @Override
             public void onItemClicked(int position) {
                 if (mActionMode != null) {
@@ -66,7 +66,7 @@ public class EditWhitelistActivity extends AppCompatActivity implements LoaderMa
                 return true;
             }
         });
-        recyclerView.setAdapter(rcAdapter);
+        recyclerView.setAdapter(mRvAdapter);
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager llm = new LinearLayoutManager(this);
         llm.setOrientation(LinearLayoutManager.VERTICAL);
@@ -88,9 +88,14 @@ public class EditWhitelistActivity extends AppCompatActivity implements LoaderMa
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.action_delete:
-                        // TODO: Add deleting selected items
-                        Toast.makeText(EditWhitelistActivity.this, "Delete !!!",
+                        String where = mRvAdapter.getSelectedItemsWhere();
+                        int count = getContentResolver().delete(WhitelistProvider.CONTENT_URI, where, null);
+                        if (count > 0)
+                            Toast.makeText(EditWhitelistActivity.this, "Deleted " + count + " items",
                                 Toast.LENGTH_SHORT).show();
+                        else
+                            Toast.makeText(EditWhitelistActivity.this, "Delete failed", Toast.LENGTH_SHORT).show();
+
                         mode.finish();
                         return true;
                     default:
@@ -100,7 +105,7 @@ public class EditWhitelistActivity extends AppCompatActivity implements LoaderMa
 
             @Override
             public void onDestroyActionMode(ActionMode mode) {
-                rcAdapter.clearSelection();
+                mRvAdapter.clearSelection();
                 mActionMode = null;
             }
         };
@@ -183,8 +188,8 @@ public class EditWhitelistActivity extends AppCompatActivity implements LoaderMa
     }
 
     private void toggleSelection(int position) {
-        rcAdapter.toggleSelection(position);
-        int count = rcAdapter.getSelectedItemCount();
+        mRvAdapter.toggleSelection(position);
+        int count = mRvAdapter.getSelectedItemCount();
 
         if (count == 0) {
             mActionMode.finish();
@@ -201,12 +206,12 @@ public class EditWhitelistActivity extends AppCompatActivity implements LoaderMa
 
     @Override
     public void onLoadFinished(Loader loader, Cursor data) {
-        rcAdapter.swapCursor(data);
+        mRvAdapter.swapCursor(data);
     }
 
     @Override
     public void onLoaderReset(Loader loader) {
-        rcAdapter.swapCursor(null);
+        mRvAdapter.swapCursor(null);
     }
 
     private int pxToDp(int number) {
