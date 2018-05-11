@@ -3,8 +3,10 @@ package pl.revanmj.smspasswordnotifier;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Looper;
 import android.telephony.SmsMessage;
 
 /**
@@ -21,22 +23,20 @@ public class BroadcastListener extends BroadcastReceiver {
         if (intent.getAction() != null && intent.getAction().equals(NEW_SMS_ACTION)) {
             try {
                 if (bundle != null) {
-
                     // A PDU is a "protocol data unit". This is the industrial standard for SMS message
                     final Object[] pdusObj = (Object[]) bundle.get("pdus");
-                    for (Object aPdusObj : pdusObj) {
-
-                        // This will create an SmsMessage object from the received pdu
-                        SmsMessage sms = null;
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            sms = SmsMessage.createFromPdu((byte[]) aPdusObj, "3gpp");
-                        } else {
-                            sms = SmsMessage.createFromPdu((byte[]) aPdusObj);
-                        }
-
-                        // Process message
-                        MessageProcessor mp = new MessageProcessor(context);
-                        mp.processSms(context, sms);
+                    for (final Object aPdusObj : pdusObj) {
+                        AsyncTask.execute(() -> {
+                            Looper.prepare();
+                            SmsMessage sms = null;
+                            // This will create an SmsMessage object from the received pdu
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                sms = SmsMessage.createFromPdu((byte[]) aPdusObj, "3gpp");
+                            } else {
+                                sms = SmsMessage.createFromPdu((byte[]) aPdusObj);
+                            }
+                            MessageProcessor.processSms(context, sms);
+                        });
                     }
                 }
             } catch (Exception e) {

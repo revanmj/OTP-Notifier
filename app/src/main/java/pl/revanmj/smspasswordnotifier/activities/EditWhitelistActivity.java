@@ -1,14 +1,11 @@
 package pl.revanmj.smspasswordnotifier.activities;
 
+import android.arch.lifecycle.ViewModelProvider;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
@@ -27,15 +24,18 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import java.util.List;
+
 import pl.revanmj.smspasswordnotifier.R;
 import pl.revanmj.smspasswordnotifier.data.WhitelistAdapter;
-import pl.revanmj.smspasswordnotifier.data.WhitelistProvider;
+import pl.revanmj.smspasswordnotifier.data.WhitelistItem;
+import pl.revanmj.smspasswordnotifier.data.WhitelistViewModel;
 
-public class EditWhitelistActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
-    private WhitelistAdapter mRvAdapter;
+public class EditWhitelistActivity extends AppCompatActivity {
     private ActionMode mActionMode;
     private ActionMode.Callback mActionModeCallback;
-
+    private WhitelistAdapter mRvAdapter;
+    private WhitelistViewModel mViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,14 +88,10 @@ public class EditWhitelistActivity extends AppCompatActivity implements LoaderMa
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.action_delete:
-                        String where = mRvAdapter.getSelectedItemsWhere();
-                        int count = getContentResolver().delete(WhitelistProvider.CONTENT_URI, where, null);
-                        if (count > 0)
-                            Toast.makeText(EditWhitelistActivity.this, "Deleted " + count + " items",
+                        List<WhitelistItem> itemsToDelete = mRvAdapter.getSelectedItems();
+                        mViewModel.delete(itemsToDelete.toArray(new WhitelistItem[itemsToDelete.size()]));
+                        Toast.makeText(EditWhitelistActivity.this, "Deleted " + itemsToDelete.size() + " items",
                                 Toast.LENGTH_SHORT).show();
-                        else
-                            Toast.makeText(EditWhitelistActivity.this, "Delete failed", Toast.LENGTH_SHORT).show();
-
                         mode.finish();
                         return true;
                     default:
@@ -115,8 +111,13 @@ public class EditWhitelistActivity extends AppCompatActivity implements LoaderMa
                 llm.getOrientation());
         recyclerView.addItemDecoration(dividerItemDecoration);
 
-        // init cursor loader
-        getSupportLoaderManager().initLoader(1, null, this);
+        // init data
+        mViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication())
+                .create(WhitelistViewModel.class);
+        mViewModel.getWhitelist().observe(this, words -> {
+            // Update the cached copy of the words in the adapter.
+            mRvAdapter.swapData(words);
+        });
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> {
@@ -175,13 +176,12 @@ public class EditWhitelistActivity extends AppCompatActivity implements LoaderMa
         String sender = input.getText().toString();
         if (!sender.equals("")) {
             ContentValues cv = new ContentValues();
-            cv.put(WhitelistProvider.KEY_SENDER, sender);
-            EditWhitelistActivity.this.getContentResolver()
-                    .insert(WhitelistProvider.CONTENT_URI, cv);
+            WhitelistItem item = new WhitelistItem();
+            item.setName(sender);
+            mViewModel.insert(item);
             dialog.dismiss();
         } else {
-            Toast.makeText(
-                    EditWhitelistActivity.this,
+            Toast.makeText(EditWhitelistActivity.this,
                     R.string.message_empty_sender,
                     Toast.LENGTH_SHORT).show();
         }
@@ -197,21 +197,6 @@ public class EditWhitelistActivity extends AppCompatActivity implements LoaderMa
             mActionMode.setTitle(String.valueOf(count));
             mActionMode.invalidate();
         }
-    }
-
-    @Override
-    public Loader onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(this, WhitelistProvider.CONTENT_URI, null, null, null, null);
-    }
-
-    @Override
-    public void onLoadFinished(Loader loader, Cursor data) {
-        mRvAdapter.swapCursor(data);
-    }
-
-    @Override
-    public void onLoaderReset(Loader loader) {
-        mRvAdapter.swapCursor(null);
     }
 
     private int pxToDp(int number) {

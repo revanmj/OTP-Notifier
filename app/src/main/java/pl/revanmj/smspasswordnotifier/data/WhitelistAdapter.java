@@ -1,7 +1,7 @@
 package pl.revanmj.smspasswordnotifier.data;
 
-import android.database.Cursor;
 import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
@@ -9,6 +9,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import pl.revanmj.smspasswordnotifier.R;
 
@@ -18,7 +21,7 @@ import pl.revanmj.smspasswordnotifier.R;
 
 public class WhitelistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int EMPTY_VIEW = 10;
-    private Cursor mCursor;
+    private List<WhitelistItem> mWhitelist;
     private ClickListener mClickListener;
     private SparseIntArray mSelectedItems = new SparseIntArray();
 
@@ -26,8 +29,9 @@ public class WhitelistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         mClickListener = listener;
     }
 
+    @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
         if (viewType == EMPTY_VIEW) {
             View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.empty_view, parent, false);
@@ -42,12 +46,12 @@ public class WhitelistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        Cursor item = getItem(position);
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof WhitelistItemHolder) {
+            WhitelistItem item = getItem(position);
             ((WhitelistItemHolder) holder).bind(
-                    item.getInt(WhitelistProvider.ID),
-                    item.getString(WhitelistProvider.SENDER));
+                    item.getSenderId(),
+                    item.getName());
             holder.itemView.setOnClickListener(view -> {
                 if (mClickListener != null) {
                     mClickListener.onItemClicked(position);
@@ -68,31 +72,27 @@ public class WhitelistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     @Override
     public int getItemCount() {
-        if (mCursor != null && mCursor.getCount() > 0)
-            return mCursor.getCount();
+        if (mWhitelist != null && mWhitelist.size() > 0)
+            return mWhitelist.size();
         else
             return 1;
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (mCursor == null || mCursor.getCount() == 0) {
+        if (mWhitelist == null || mWhitelist.size() == 0) {
             return EMPTY_VIEW;
         }
         return super.getItemViewType(position);
     }
 
-    public void swapCursor(Cursor c) {
-        mCursor = c;
+    public void swapData(List<WhitelistItem> whitelist) {
+        mWhitelist = whitelist;
         notifyDataSetChanged();
     }
 
-    public Cursor getItem(int pos) {
-        if (this.mCursor != null && !this.mCursor.isClosed()) {
-            this.mCursor.moveToPosition(pos);
-        }
-
-        return this.mCursor;
+    private WhitelistItem getItem(int pos) {
+        return mWhitelist.get(pos);
     }
 
     public boolean isSelected(int position) {
@@ -103,7 +103,7 @@ public class WhitelistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         if (mSelectedItems.get(position, -1) >= 0) {
             mSelectedItems.delete(position);
         } else {
-            mSelectedItems.put(position, getItem(position).getInt(WhitelistProvider.ID));
+            mSelectedItems.put(position, getItem(position).getSenderId());
         }
         notifyItemChanged(position);
     }
@@ -112,15 +112,12 @@ public class WhitelistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         return mSelectedItems.size();
     }
 
-    public String getSelectedItemsWhere() {
-        StringBuilder result = new StringBuilder();
-        for (int i = 0; i < mSelectedItems.size(); ++i) {
-            if (i > 0)
-                result.append(" OR ");
-            result.append(WhitelistProvider.KEY_ID).append(" = ")
-                    .append(mSelectedItems.get(mSelectedItems.keyAt(i)));
+    public List<WhitelistItem> getSelectedItems() {
+        List<WhitelistItem> result = new ArrayList<>();
+        for (int i = 0; i < mSelectedItems.size(); i++) {
+            result.add(mWhitelist.get(mSelectedItems.keyAt(i)));
         }
-        return result.toString();
+        return result;
     }
 
     public void clearSelection() {

@@ -1,11 +1,12 @@
 package pl.revanmj.smspasswordnotifier;
 
+import android.app.Application;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.arch.lifecycle.ViewModelProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
@@ -20,7 +21,8 @@ import java.util.Date;
 import java.util.Locale;
 
 import pl.revanmj.smspasswordnotifier.data.SharedSettings;
-import pl.revanmj.smspasswordnotifier.data.WhitelistProvider;
+import pl.revanmj.smspasswordnotifier.data.WhitelistItem;
+import pl.revanmj.smspasswordnotifier.data.WhitelistViewModel;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 
@@ -30,36 +32,25 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class MessageProcessor {
     private static final String LOG_TAG = "NumbersFilter";
-    private Context mContext;
 
-    MessageProcessor(Context context) {
-        mContext = context;
-    }
-
-    void processSms(Context context, SmsMessage sms) {
+    static void processSms(Context context, SmsMessage sms) {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
         boolean use_whitelist = settings.getBoolean(SharedSettings.KEY_USE_WHITELIST, true);
 
         String phoneNumber = sms.getDisplayOriginatingAddress();
+        String message = sms.getDisplayMessageBody();
 
-        Cursor cursor = mContext.getContentResolver().query(
-                Uri.withAppendedPath(WhitelistProvider.CONTENT_URI, phoneNumber),
-                null, null, null, null);
-        int cursorCount = cursor != null ? cursor.getCount() : 0;
+        WhitelistViewModel viewModel = ViewModelProvider.AndroidViewModelFactory
+                .getInstance((Application)context.getApplicationContext())
+                .create(WhitelistViewModel.class);
+        WhitelistItem item = viewModel.getItemByName(phoneNumber);
 
-        if (use_whitelist && cursorCount < 1) {
+        if (use_whitelist && item == null) {
             Log.d(LOG_TAG, "processSms - shouldExtractPassword returned false, exiting...");
-            if (cursor != null)
-                cursor.close();
             return;
         }
 
-        String message = sms.getDisplayMessageBody();
-        String regex = cursor != null ? cursor.getString(WhitelistProvider.REGEX) : null;
-        if (cursor != null)
-            cursor.close();
-        String code = CodeExtractor.extractCode(message, regex);
-
+        String code = CodeExtractor.extractCode(message, item.getRegex());
         if (code == null) {
             Log.d(LOG_TAG, "processSms - extracted code is null, exiting...");
             return;
@@ -70,12 +61,12 @@ public class MessageProcessor {
             copyCode(context, code);
 
         showNotification(context, code, phoneNumber);
-
     }
 
     static void copyCode(Context context, String code) {
         // Copy code to the clipboard
-        android.content.ClipboardManager clipboard = (android.content.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+        android.content.ClipboardManager clipboard =
+                (android.content.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
         android.content.ClipData clip = android.content.ClipData.newPlainText("someLabel",code);
         clipboard.setPrimaryClip(clip);
 
@@ -104,6 +95,7 @@ public class MessageProcessor {
 
         // Creating intent for notification action
         Intent intent = new Intent(BroadcastListener.COPY_CODE);
+        intent.setClass(context, BroadcastListener.class);
         intent.putExtra("code", code);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
 

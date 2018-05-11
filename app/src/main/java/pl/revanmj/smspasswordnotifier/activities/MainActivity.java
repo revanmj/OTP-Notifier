@@ -4,7 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.content.ContentValues;
+import android.arch.lifecycle.ViewModelProvider;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -28,7 +28,8 @@ import pl.revanmj.smspasswordnotifier.BuildConfig;
 import pl.revanmj.smspasswordnotifier.MessageProcessor;
 import pl.revanmj.smspasswordnotifier.R;
 import pl.revanmj.smspasswordnotifier.data.SharedSettings;
-import pl.revanmj.smspasswordnotifier.data.WhitelistProvider;
+import pl.revanmj.smspasswordnotifier.data.WhitelistItem;
+import pl.revanmj.smspasswordnotifier.data.WhitelistViewModel;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -201,15 +202,15 @@ public class MainActivity extends AppCompatActivity {
             add("Verify"); // Microsoft
         }};
 
-        ArrayList<ContentValues> defaultSenders = new ArrayList<>();
-        for (String sender: defaultWhitelist) {
-            ContentValues tmp = new ContentValues();
-            tmp.put(WhitelistProvider.KEY_SENDER, sender);
+        ArrayList<WhitelistItem> defaultSenders = new ArrayList<>();
+        for (String sender : defaultWhitelist) {
+            WhitelistItem tmp = new WhitelistItem();
+            tmp.setName(sender);
             defaultSenders.add(tmp);
         }
 
-        ContentValues[] cv = new ContentValues[defaultSenders.size()];
-        activity.getContentResolver()
-                .bulkInsert(WhitelistProvider.CONTENT_URI, defaultSenders.toArray(cv));
+        WhitelistViewModel viewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(activity.getApplication())
+                .create(WhitelistViewModel.class);
+        viewModel.insert(defaultSenders.toArray(new WhitelistItem[defaultSenders.size()]));
     }
 }
