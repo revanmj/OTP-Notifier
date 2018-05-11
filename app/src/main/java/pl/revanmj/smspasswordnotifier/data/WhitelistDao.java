@@ -10,13 +10,13 @@ import java.util.List;
 
 @Dao
 public interface WhitelistDao {
-    @Query("SELECT * FROM Whitelist ORDER BY name ASC")
+    @Query("SELECT * FROM Senders ORDER BY name ASC")
     LiveData<List<WhitelistItem>> getAll();
 
-    @Query("SELECT * FROM Whitelist WHERE senderId == :id")
+    @Query("SELECT * FROM Senders WHERE sender_id == :id")
     WhitelistItem getById(int id);
 
-    @Query("SELECT * FROM Whitelist WHERE name == :name")
+    @Query("SELECT * FROM Senders WHERE name == :name")
     WhitelistItem getByName(String name);
 
     @Insert
