@@ -14,5 +14,4 @@ android:
     - android-28
 
 script:
-  - cd ./library
   - ./gradlew clean check --profile
