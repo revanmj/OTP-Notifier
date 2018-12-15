@@ -94,8 +94,8 @@ public class MessageProcessor {
         int color = ContextCompat.getColor(context, R.color.colorPrimary);
 
         // Creating intent for notification action
-        Intent intent = new Intent(BroadcastListener.COPY_CODE);
-        intent.setClass(context, BroadcastListener.class);
+        Intent intent = new Intent(SmsReceiver.COPY_CODE);
+        intent.setClass(context, SmsReceiver.class);
         intent.putExtra("code", code);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
 
