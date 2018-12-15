@@ -50,7 +50,7 @@ public class MessageProcessor {
             return;
         }
 
-        String code = CodeExtractor.extractCode(message, item.getRegex());
+        String code = CodeExtractor.extractCode(message, item != null ? item.getRegex() : null);
         if (code == null) {
             Log.d(LOG_TAG, "processSms - extracted code is null, exiting...");
             return;
