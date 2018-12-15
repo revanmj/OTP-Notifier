@@ -38,11 +38,10 @@ public class SmsReceiver extends BroadcastReceiver {
         final Bundle bundle = intent.getExtras();
 
         if (Telephony.Sms.Intents.SMS_RECEIVED_ACTION.equals(intent.getAction())) {
-            // Just in case some OEM allowed this broadcast to be sent,
-            // but restricted access to its extras
+            // Just in case some OEM allowed this broadcast to be sent without permission being granted
             if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECEIVE_SMS)
                     != PackageManager.PERMISSION_GRANTED) {
-                Log.e(LOG_TAG, "We've got a broadcast, yet permission is not granted!");
+                Log.e(LOG_TAG, "We've got SMS broadcast, yet permission is not granted!");
                 return;
             }
             try {

@@ -95,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
                 MessageProcessor.showNotification(mActivity, "123456", "ExampleSender");
                 return false;
             });
+            // Hide test notification option from release builds
             if (!BuildConfig.DEBUG) {
                 getPreferenceScreen().removePreference(testNoti);
             }
@@ -113,6 +114,8 @@ public class MainActivity extends AppCompatActivity {
                             MY_PERMISSIONS_REQUEST_RECEIVE_SMS);
                 }
             }
+            // Use system notification settings when on Oreo or higher
+            // and hide internal settings in such case
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 SwitchPreferenceCompat headsUpSwitch = (SwitchPreferenceCompat) findPreference("headsup_notifications");
                 getPreferenceScreen().removePreference(headsUpSwitch);
@@ -165,6 +168,7 @@ public class MainActivity extends AppCompatActivity {
                     new String[]{Manifest.permission.RECEIVE_SMS},
                     MY_PERMISSIONS_REQUEST_RECEIVE_SMS);
         });
+        // Close app if permission is not granted
         builder.setNegativeButton(R.string.button_exit, (dialogInterface, i) -> {
             dialogInterface.dismiss();
             activity.finish();

@@ -78,18 +78,6 @@ public class MessageProcessor {
         // Instert space in the middle of the code (if 6 digits or longer) for better readability
         code = insertSpaceInTheMiddle(code);
 
-        /*// Prepare formatted string with notification content text
-        String lineFormat = sender + ": %s";
-        int lineParamStartPos = lineFormat.indexOf("%s");
-        if (lineParamStartPos < 0) {
-            throw new InvalidParameterException("Something's wrong with your string! LINT could have caught that.");
-        }
-        String lineFormatted = String.format(lineFormat, code);
-
-        // Adding bold to the OTP
-        Spannable sb = new SpannableString(lineFormatted);
-        sb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), lineParamStartPos, lineParamStartPos + code.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);*/
-
         // Accent color for L/M/N
         int color = ContextCompat.getColor(context, R.color.colorPrimary);
 
@@ -120,6 +108,7 @@ public class MessageProcessor {
         boolean heads_up = settings.getBoolean(SharedSettings.KEY_HEADSUP_NOTIFICATIONS, false);
         if (heads_up && Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             mBuilder.setPriority(NotificationCompat.PRIORITY_HIGH);
+            // Silent sound needed for heads up notifications to work
             mBuilder.setSound(Uri.parse("android.resource://pl.revanmj.smspasswordnotifier/" + R.raw.silent));
         }
 
