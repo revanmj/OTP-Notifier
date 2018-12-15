@@ -69,7 +69,7 @@ public class EditWhitelistActivity extends AppCompatActivity {
         recyclerView.setAdapter(mRvAdapter);
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager llm = new LinearLayoutManager(this);
-        llm.setOrientation(LinearLayoutManager.VERTICAL);
+        llm.setOrientation(RecyclerView.VERTICAL);
         recyclerView.setLayoutManager(llm);
 
         mActionModeCallback = new ActionMode.Callback() {
