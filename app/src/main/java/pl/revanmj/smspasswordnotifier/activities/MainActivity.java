@@ -4,7 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.arch.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProvider;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -12,15 +12,15 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceManager;
-import android.support.v7.preference.PreferenceScreen;
-import android.support.v7.preference.SwitchPreferenceCompat;
-import android.support.v7.preference.PreferenceFragmentCompat;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceManager;
+import androidx.preference.PreferenceScreen;
+import androidx.preference.SwitchPreferenceCompat;
+import androidx.preference.PreferenceFragmentCompat;
 
 import java.util.ArrayList;
 
@@ -103,26 +103,14 @@ public class MainActivity extends AppCompatActivity {
                     Manifest.permission.RECEIVE_SMS)
                     != PackageManager.PERMISSION_GRANTED) {
 
-                // Should we show an explanation?
                 if (ActivityCompat.shouldShowRequestPermissionRationale(mActivity,
                         Manifest.permission.RECEIVE_SMS)) {
-
-                    // Show an explanation to the user *asynchronously* -- don't block
-                    // this thread waiting for the user's response! After the user
-                    // sees the explanation, try again to request the permission.
                     showPermissionExplanaition(mActivity);
 
                 } else {
-
-                    // No explanation needed, we can request the permission.
-
                     ActivityCompat.requestPermissions(mActivity,
                             new String[]{Manifest.permission.RECEIVE_SMS},
                             MY_PERMISSIONS_REQUEST_RECEIVE_SMS);
-
-                    // MY_PERMISSIONS_REQUEST_RECEIVE_SMS is an
-                    // app-defined int constant. The callback method gets the
-                    // result of the request.
                 }
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -131,11 +119,8 @@ public class MainActivity extends AppCompatActivity {
 
                 NotificationManager mNotificationManager =
                         (NotificationManager) mActivity.getSystemService(Context.NOTIFICATION_SERVICE);
-                // The id of the channel.
                 String id = getString(R.string.noti_channel_id);
-                // The user-visible name of the channel.
                 CharSequence name = getString(R.string.noti_channel_name);
-                // The user-visible description of the channel.
                 String description = getString(R.string.noti_channel_description);
 
                 NotificationChannel mChannel = new NotificationChannel(id, name, NotificationManager.IMPORTANCE_DEFAULT);
@@ -143,8 +128,6 @@ public class MainActivity extends AppCompatActivity {
                 mChannel.setDescription(description);
                 mChannel.enableLights(true);
                 mChannel.setShowBadge(false);
-                // Sets the notification light color for notifications posted to this
-                // channel, if the device supports this feature.
                 mChannel.setLightColor(Color.BLUE);
                 mNotificationManager.createNotificationChannel(mChannel);
             } else {
