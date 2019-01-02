@@ -7,7 +7,7 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="actionModeStyle">@style/CustomActionModeStyle</item>
-        <item name="actionModeCloseDrawable">@drawable/ic_check_grey600_24dp</item>
+        <item name="actionModeCloseDrawable">@drawable/ic_check</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
