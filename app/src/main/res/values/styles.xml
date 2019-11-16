@@ -6,7 +6,6 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="actionModeStyle">@style/CustomActionModeStyle</item>
         <item name="actionModeCloseDrawable">@drawable/ic_check</item>
     </style>
 
@@ -18,15 +17,6 @@
 
     <style name="AppThemeSettings" parent="AppTheme">
         <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
-    </style>
-
-    <style name="CustomActionModeStyle" parent="Widget.MaterialComponents.Toolbar">
-        <item name="background">@color/icons</item>
-        <item name="titleTextStyle">@style/AppTheme.ActionMode.Title</item>
-    </style>
-
-    <style name="AppTheme.ActionMode.Title" parent="TextAppearance.MaterialComponents.Tab">
-        <item name="android:textColor">@android:color/black</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
