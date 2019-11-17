@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <SwitchPreferenceCompat
+        android:icon="@drawable/pref_copy"
         android:title="@string/label_copy_to_clipboard_switch"
         android:summary="@string/summary_copy_to_clipboard_switch"
         android:key="use_clipboard"
@@ -10,12 +11,21 @@
         android:summary="@string/summary_process_all_messages"
         android:key="use_whitelist"
         android:defaultValue="true" />
+    <PreferenceScreen
+        android:icon="@drawable/pref_whitelist"
+        android:title="@string/label_edit_nubers"
+        android:summary="@string/summary_edit_numbers"
+        android:key="edit_numbers">
+        <intent android:action="pl.revanmj.smspasswordnotifier.activities.EditWhitelistActivity"/>
+    </PreferenceScreen>
     <SwitchPreferenceCompat
+        android:icon="@drawable/pref_noti"
         android:title="@string/label_headsup_notifications"
         android:summary="@string/summary_headsup_notifications"
         android:key="headsup_notifications"
         android:defaultValue="false" />
     <PreferenceScreen
+        android:icon="@drawable/pref_noti"
         android:title="@string/label_edit_notifications"
         android:summary="@string/summary_edit_notifications"
         android:key="edit_notifications">
@@ -25,17 +35,12 @@
         </intent>
     </PreferenceScreen>
     <PreferenceScreen
-        android:title="@string/label_edit_nubers"
-        android:summary="@string/summary_edit_numbers"
-        android:key="edit_numbers">
-        <intent android:action="pl.revanmj.smspasswordnotifier.activities.EditWhitelistActivity"/>
-    </PreferenceScreen>
-    <PreferenceScreen
         android:title="Test notification"
         android:summary="Add test notification"
         android:key="test_noti">
     </PreferenceScreen>
     <Preference
+        android:icon="@drawable/pref_info"
         android:selectable="false"
         android:enabled="true"
         android:key="app_version"
