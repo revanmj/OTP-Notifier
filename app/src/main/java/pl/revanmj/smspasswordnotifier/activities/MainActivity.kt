@@ -174,8 +174,7 @@ class MainActivity : AppCompatActivity() {
 
             val defaultSenders = ArrayList<WhitelistItem>()
             for (sender in defaultWhitelist) {
-                val tmp = WhitelistItem()
-                tmp.name = sender
+                val tmp = WhitelistItem(name=sender, regex = "")
                 defaultSenders.add(tmp)
             }
 

@@ -31,4 +31,7 @@
     <string name="noti_channel_id">otp_notifications</string>
     <string name="noti_channel_name">OTP Channel</string>
     <string name="action_delete">Delete</string>
+    <string name="message_wrong_regex">Couldn\'t compile regex: %s</string>
+    <string name="button_update">Update</string>
+    <string name="title_update_sender">Update whitelist item</string>
 </resources>
