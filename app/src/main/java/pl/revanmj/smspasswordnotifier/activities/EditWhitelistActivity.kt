@@ -158,8 +158,7 @@ class EditWhitelistActivity : AppCompatActivity() {
     private fun addSenderToWhitelist(input: EditText, dialog: DialogInterface) {
         val sender = input.text.toString()
         if (sender != "") {
-            val item = WhitelistItem()
-            item.name = sender
+            val item = WhitelistItem(name=sender, regex = "")
             mViewModel!!.insert(item)
             dialog.dismiss()
         } else {
