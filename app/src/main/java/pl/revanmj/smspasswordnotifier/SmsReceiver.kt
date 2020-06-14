@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.provider.Telephony
@@ -50,12 +49,7 @@ class SmsReceiver : BroadcastReceiver() {
                         pdus.forEach {
                             mHandler.post {
                                 // This will create an SmsMessage object from the received pdu
-                                val sms: SmsMessage =
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                    SmsMessage.createFromPdu(it, "3gpp")
-                                } else {
-                                    SmsMessage.createFromPdu(it)
-                                }
+                                val sms: SmsMessage = SmsMessage.createFromPdu(it, "3gpp")
                                 MessageProcessor.processSms(context, sms)
                             }
                         }
