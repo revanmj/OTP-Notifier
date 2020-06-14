@@ -10,7 +10,7 @@ object CodeExtractor {
     fun extractCode(message: String, customRegex: String?): String? {
         val regex = "([0-9]{3}( |-)[0-9]{3}( |-)[0-9]{3}|[0-9]{3,4}( |-)[0-9]{3,4}|[0-9]{4,9})"
 
-        val pattern: Pattern = if (customRegex != null && customRegex.isNotEmpty())
+        val pattern: Pattern = if (!customRegex.isNullOrEmpty())
             Pattern.compile(customRegex)
         else
             Pattern.compile(regex)

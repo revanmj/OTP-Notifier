@@ -20,10 +20,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Observer
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.android.synthetic.main.activity_edit_whitelist.*
+import kotlinx.android.synthetic.main.content_edit_whitelist.*
 
 import pl.revanmj.smspasswordnotifier.R
 import pl.revanmj.smspasswordnotifier.data.WhitelistAdapter
@@ -34,8 +34,8 @@ import java.util.regex.PatternSyntaxException
 
 class EditWhitelistActivity : AppCompatActivity() {
     private var mActionMode: ActionMode? = null
-    private var mRvAdapter: WhitelistAdapter? = null
-    private var mViewModel: WhitelistViewModel? = null
+    private lateinit var mRvAdapter: WhitelistAdapter
+    private lateinit var mViewModel: WhitelistViewModel
 
     private var mActionModeCallback: ActionMode.Callback = object : ActionMode.Callback {
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
@@ -50,8 +50,8 @@ class EditWhitelistActivity : AppCompatActivity() {
         override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
             return when (item.itemId) {
                 R.id.action_delete -> {
-                    val itemsToDelete = mRvAdapter!!.selectedItems
-                    mViewModel!!.delete(*itemsToDelete.toTypedArray())
+                    val itemsToDelete = mRvAdapter.selectedItems
+                    mViewModel.delete(*itemsToDelete.toTypedArray())
                     Toast.makeText(this@EditWhitelistActivity, "Deleted " + itemsToDelete.size + " items",
                             Toast.LENGTH_SHORT).show()
                     mode.finish()
@@ -62,7 +62,7 @@ class EditWhitelistActivity : AppCompatActivity() {
         }
 
         override fun onDestroyActionMode(mode: ActionMode) {
-            mRvAdapter!!.clearSelection()
+            mRvAdapter.clearSelection()
             mActionMode = null
         }
     }
@@ -70,12 +70,9 @@ class EditWhitelistActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_whitelist)
-
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
 
         // Setting up RecyclerView
-        val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         mRvAdapter = WhitelistAdapter(object : WhitelistAdapter.ClickListener {
             override fun onItemClicked(position: Int, whitelistItem: WhitelistItem) {
                 if (mActionMode != null) {
@@ -107,12 +104,11 @@ class EditWhitelistActivity : AppCompatActivity() {
         // init data
         mViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(application)
                 .create(WhitelistViewModel::class.java)
-        mViewModel?.whitelist?.observe(this, Observer{ words ->
+        mViewModel.whitelist.observe(this, Observer{ words ->
             // Update the cached copy of the words in the adapter.
-            mRvAdapter?.swapData(words)
+            mRvAdapter.swapData(words)
         })
 
-        val fab = findViewById<FloatingActionButton>(R.id.fab)
         fab.setOnClickListener { showEditDialog() }
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
@@ -202,8 +198,8 @@ class EditWhitelistActivity : AppCompatActivity() {
     }
 
     private fun toggleSelection(position: Int) {
-        mRvAdapter!!.toggleSelection(position)
-        val count = mRvAdapter!!.selectedItemCount
+        mRvAdapter.toggleSelection(position)
+        val count = mRvAdapter.selectedItemCount
 
         if (count == 0) {
             mActionMode?.finish()

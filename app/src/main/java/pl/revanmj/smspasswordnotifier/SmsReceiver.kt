@@ -38,14 +38,16 @@ class SmsReceiver : BroadcastReceiver() {
         when (intent.action) {
             Telephony.Sms.Intents.SMS_RECEIVED_ACTION -> {
                 // Just in case some OEM allowed this broadcast to be sent without permission being granted
-                if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECEIVE_SMS) != PackageManager.PERMISSION_GRANTED) {
+                if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECEIVE_SMS)
+                        != PackageManager.PERMISSION_GRANTED) {
                     Log.e(LOG_TAG, "We've got SMS broadcast, yet permission is not granted!")
                     return
                 }
                 try {
                     if (bundle?.get(KEY_PDUS) != null) {
                         // A PDU is a "protocol data unit". This is the industrial standard for SMS message
-                        val pdus : Array<ByteArray> = bundle.get(KEY_PDUS) as Array<ByteArray>
+                        @Suppress("UNCHECKED_CAST") val pdus : Array<ByteArray>
+                                = bundle.get(KEY_PDUS) as Array<ByteArray>
                         pdus.forEach {
                             mHandler.post {
                                 // This will create an SmsMessage object from the received pdu
