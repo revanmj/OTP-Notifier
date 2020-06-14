@@ -1,10 +1,7 @@
 package pl.revanmj.smspasswordnotifier.data
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
 
 @Dao
 interface WhitelistDao {
@@ -22,6 +19,12 @@ interface WhitelistDao {
 
     @Insert
     fun insert(item: WhitelistItem)
+
+    @Update
+    fun update(item: WhitelistItem)
+
+    @Update
+    fun updateAll(vararg items: WhitelistItem)
 
     @Delete
     fun deleteAll(vararg items: WhitelistItem)

@@ -55,7 +55,7 @@ class WhitelistAdapter(private val mClickListener: ClickListener?) : RecyclerVie
                     item.senderId,
                     item.name)
             holder.itemView.setOnClickListener {
-                mClickListener?.onItemClicked(position)
+                mClickListener?.onItemClicked(position, item)
             }
             holder.itemView.setOnLongClickListener {
                 if (mClickListener != null)
@@ -134,7 +134,7 @@ class WhitelistAdapter(private val mClickListener: ClickListener?) : RecyclerVie
     inner class EmptyViewHolder internal constructor(itemView: View) : RecyclerView.ViewHolder(itemView)
 
     interface ClickListener {
-        fun onItemClicked(position: Int)
+        fun onItemClicked(position: Int, whitelistItem: WhitelistItem)
         fun onItemLongClicked(position: Int): Boolean
     }
 }

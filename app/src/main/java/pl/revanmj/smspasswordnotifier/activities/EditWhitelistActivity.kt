@@ -29,6 +29,8 @@ import pl.revanmj.smspasswordnotifier.R
 import pl.revanmj.smspasswordnotifier.data.WhitelistAdapter
 import pl.revanmj.smspasswordnotifier.data.WhitelistItem
 import pl.revanmj.smspasswordnotifier.data.WhitelistViewModel
+import java.util.regex.Pattern
+import java.util.regex.PatternSyntaxException
 
 class EditWhitelistActivity : AppCompatActivity() {
     private var mActionMode: ActionMode? = null
@@ -75,11 +77,11 @@ class EditWhitelistActivity : AppCompatActivity() {
         // Setting up RecyclerView
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         mRvAdapter = WhitelistAdapter(object : WhitelistAdapter.ClickListener {
-            override fun onItemClicked(position: Int) {
+            override fun onItemClicked(position: Int, whitelistItem: WhitelistItem) {
                 if (mActionMode != null) {
                     toggleSelection(position)
                 } else {
-                    // TODO: Add opening edit dialog
+                    showEditDialog(whitelistItem)
                 }
             }
 
@@ -115,38 +117,58 @@ class EditWhitelistActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
-    private fun showEditDialog() {
+    private fun showEditDialog(item: WhitelistItem? = null) {
         // All this to set up proper padding ...
         val layout = LinearLayout(this)
         layout.orientation = LinearLayout.VERTICAL
         layout.gravity = Gravity.CENTER_HORIZONTAL
-        layout.setPadding(pxToDp(20), 0, pxToDp(20), 0)
-        val input = EditText(this)
-        input.isSingleLine = true
-        input.hint = "Sender's name or number"
-        layout.addView(input)
+        layout.setPadding(pxToDp(20), pxToDp(4), pxToDp(20), 0)
 
+        val senderField = EditText(this)
+        senderField.isSingleLine = true
+        senderField.hint = "Sender's name or number"
+        layout.addView(senderField)
+
+        val regexField = EditText(this)
+        regexField.isSingleLine = false
+        regexField.hint = "Regular expression for extracting code (leave empty for default)"
+        layout.addView(regexField)
+
+        var itemTmp = item
+        if (itemTmp != null) {
+            senderField.text.append(itemTmp.name)
+            regexField.text.append(itemTmp.regex)
+        } else {
+            itemTmp = WhitelistItem(name = "", regex = "")
+        }
+
+        val isAddMode = itemTmp.senderId == -1
         val builder = AlertDialog.Builder(this)
-        builder.setTitle(R.string.title_add_sender)
+        builder.setTitle(if (isAddMode) R.string.title_add_sender else R.string.title_update_sender)
         builder.setView(layout)
-        builder.setPositiveButton(R.string.button_add, null)
+        builder.setPositiveButton(if (isAddMode) R.string.button_add else R.string.button_update, null)
         builder.setNegativeButton(R.string.button_cancel, null)
 
         val dialog = builder.create()
         dialog.setOnShowListener { dialog1 ->
             val button = (dialog1 as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
-            button.setOnClickListener { addSenderToWhitelist(input, dialog1) }
+            button.setOnClickListener {
+                itemTmp.name = senderField.text.toString()
+                itemTmp.regex = regexField.text.toString()
+                persist(itemTmp, dialog)
+            }
         }
 
-        // Add listener for Search key presses on virtual keyboard
-        input.setOnKeyListener { _, keyCode, event ->
+        senderField.setOnKeyListener { _, keyCode, event ->
             if (event.action == KeyEvent.ACTION_DOWN
                     && (keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_ENTER)) {
-                        addSenderToWhitelist(input, dialog)
-                        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                        imm.toggleSoftInput(InputMethodManager.RESULT_UNCHANGED_HIDDEN, 0)
-                        return@setOnKeyListener true
-                }
+                itemTmp.name = senderField.text.toString()
+                itemTmp.regex = regexField.text.toString()
+                persist(itemTmp, dialog)
+                val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.toggleSoftInput(InputMethodManager.RESULT_UNCHANGED_HIDDEN, 0)
+                return@setOnKeyListener true
+            }
             false
         }
 
@@ -155,11 +177,22 @@ class EditWhitelistActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun addSenderToWhitelist(input: EditText, dialog: DialogInterface) {
-        val sender = input.text.toString()
-        if (sender != "") {
-            val item = WhitelistItem(name=sender, regex = "")
-            mViewModel!!.insert(item)
+    private fun persist(item: WhitelistItem, dialog: DialogInterface) {
+        if (item.name.isNotEmpty()) {
+            if (item.regex.isNotEmpty()) {
+                try {
+                    Pattern.compile(item.regex)
+                } catch (e: PatternSyntaxException) {
+                    Toast.makeText(this,
+                            this.getString(R.string.message_wrong_regex, e.localizedMessage),
+                            Toast.LENGTH_SHORT).show()
+                    return
+                }
+            }
+            if (item.senderId == -1)
+                mViewModel.insert(item)
+            else
+                mViewModel.update(item)
             dialog.dismiss()
         } else {
             Toast.makeText(this,

@@ -17,6 +17,10 @@ class WhitelistViewModel(application: Application) : AndroidViewModel(applicatio
         mRepository.insert(*items)
     }
 
+    fun update(vararg items: WhitelistItem) {
+        mRepository.update(*items)
+    }
+
     fun delete(vararg items: WhitelistItem) {
         mRepository.delete(*items)
     }

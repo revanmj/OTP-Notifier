@@ -28,6 +28,12 @@ class WhitelistRepository internal constructor(application: Application) {
         }
     }
 
+    fun update(vararg items: WhitelistItem) {
+        GlobalScope.launch(Dispatchers.IO) {
+            mWhitelistDao.updateAll(*items)
+        }
+    }
+
     fun delete(vararg items: WhitelistItem) {
         GlobalScope.launch(Dispatchers.IO) {
             mWhitelistDao.deleteAll(*items)
