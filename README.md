@@ -1,5 +1,7 @@
 # OTP Notifier
 
+![Build](https://github.com/revanmj/OTP-Notifier/workflows/Android%20CI/badge.svg)
+
 This app can extract OTPs (One Time Passwords) from incoming text messages, show them to you in a clean and readable notifications and optionally copy them to clipboard automatically or by touching "Copy" button in notification.
 
 You can manually add sender numbers or names to the whitelist (or disable it and allow the app to look for OTPs in all incoming messages).
